@@ -128,6 +128,11 @@ enum bpf_map_type {
 	BPF_MAP_TYPE_CGROUP_STORAGE,
 	BPF_MAP_TYPE_SK_STORAGE,
 	BPF_MAP_TYPE_REUSEPORT_SOCKARRAY,
+<<<<<<< HEAD
+=======
+	BPF_MAP_TYPE_PERCPU_CGROUP_STORAGE = 22,
+	BPF_MAP_TYPE_DEVMAP_HASH = 25,
+>>>>>>> 07d0a9df4f20 (bpf: introduce per-cpu cgroup local storage)
 };
 
 enum bpf_prog_type {

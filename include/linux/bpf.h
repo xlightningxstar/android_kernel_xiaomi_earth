@@ -379,6 +379,16 @@ struct bpf_prog_offload {
 	u32			jited_len;
 };
 
+<<<<<<< HEAD
+=======
+enum bpf_cgroup_storage_type {
+	BPF_CGROUP_STORAGE_SHARED,
+	BPF_CGROUP_STORAGE_PERCPU,
+	__BPF_CGROUP_STORAGE_MAX
+};
+#define MAX_BPF_CGROUP_STORAGE_TYPE __BPF_CGROUP_STORAGE_MAX
+
+>>>>>>> 07d0a9df4f20 (bpf: introduce per-cpu cgroup local storage)
 struct bpf_prog_aux {
 	atomic_t refcnt;
 	u32 used_map_cnt;
