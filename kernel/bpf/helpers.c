@@ -194,6 +194,7 @@ const struct bpf_func_proto bpf_get_current_comm_proto = {
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> d1efffd3c35e (bpf: introduce bpf_spin_lock)
@@ -287,6 +288,8 @@ void copy_map_value_locked(struct bpf_map *map, void *dst, void *src,
 =======
 >>>>>>> d1efffd3c35e (bpf: introduce bpf_spin_lock)
 #ifdef CONFIG_CGROUPS
+=======
+>>>>>>> b3764bdbdb3a (bpf: extend cgroup bpf core to allow multiple cgroup storage types)
 BPF_CALL_0(bpf_get_current_cgroup_id)
 {
 	struct cgroup *cgrp = task_dfl_cgroup(current);
@@ -300,15 +303,15 @@ const struct bpf_func_proto bpf_get_current_cgroup_id_proto = {
 	.ret_type	= RET_INTEGER,
 };
 
-DECLARE_PER_CPU(void*, bpf_cgroup_storage);
-
+#ifdef CONFIG_CGROUP_BPF
+DECLARE_PER_CPU(void*, bpf_cgroup_storage[MAX_BPF_CGROUP_STORAGE_TYPE]);
 BPF_CALL_2(bpf_get_local_storage, struct bpf_map *, map, u64, flags)
 {
-	/* map and flags arguments are not used now,
-	 * but provide an ability to extend the API
-	 * for other types of local storages.
-	 * verifier checks that their values are correct.
+	/* flags argument is not used now,
+	 * but provides an ability to extend the API.
+	 * verifier checks that its value is correct.
 	 */
+<<<<<<< HEAD
 <<<<<<< HEAD
 	return (unsigned long) this_cpu_read(bpf_cgroup_storage);
 =======
@@ -324,6 +327,10 @@ BPF_CALL_2(bpf_get_local_storage, struct bpf_map *, map, u64, flags)
 		ptr = this_cpu_ptr(storage->percpu_buf);
 	return (unsigned long)ptr;
 >>>>>>> 07d0a9df4f20 (bpf: introduce per-cpu cgroup local storage)
+=======
+	enum bpf_cgroup_storage_type stype = cgroup_storage_type(map);
+	return (unsigned long) this_cpu_read(bpf_cgroup_storage[stype]);
+>>>>>>> b3764bdbdb3a (bpf: extend cgroup bpf core to allow multiple cgroup storage types)
 }
 
 const struct bpf_func_proto bpf_get_local_storage_proto = {

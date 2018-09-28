@@ -380,15 +380,23 @@ struct bpf_prog_offload {
 };
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 enum bpf_cgroup_storage_type {
 	BPF_CGROUP_STORAGE_SHARED,
 	BPF_CGROUP_STORAGE_PERCPU,
+=======
+enum bpf_cgroup_storage_type {
+	BPF_CGROUP_STORAGE_SHARED,
+>>>>>>> b3764bdbdb3a (bpf: extend cgroup bpf core to allow multiple cgroup storage types)
 	__BPF_CGROUP_STORAGE_MAX
 };
 #define MAX_BPF_CGROUP_STORAGE_TYPE __BPF_CGROUP_STORAGE_MAX
 
+<<<<<<< HEAD
 >>>>>>> 07d0a9df4f20 (bpf: introduce per-cpu cgroup local storage)
+=======
+>>>>>>> b3764bdbdb3a (bpf: extend cgroup bpf core to allow multiple cgroup storage types)
 struct bpf_prog_aux {
 	atomic_t refcnt;
 	u32 used_map_cnt;
@@ -408,7 +416,7 @@ struct bpf_prog_aux {
 	struct bpf_prog *prog;
 	struct user_struct *user;
 	u64 load_time; /* ns since boottime */
-	struct bpf_map *cgroup_storage;
+	struct bpf_map *cgroup_storage[MAX_BPF_CGROUP_STORAGE_TYPE];
 	char name[BPF_OBJ_NAME_LEN];
 #ifdef CONFIG_SECURITY
 	void *security;
@@ -514,7 +522,7 @@ int bpf_prog_test_run_skb(struct bpf_prog *prog, const union bpf_attr *kattr,
  */
 struct bpf_prog_array_item {
 	struct bpf_prog *prog;
-	struct bpf_cgroup_storage *cgroup_storage;
+	struct bpf_cgroup_storage *cgroup_storage[MAX_BPF_CGROUP_STORAGE_TYPE];
 };
 
 struct bpf_prog_array {
