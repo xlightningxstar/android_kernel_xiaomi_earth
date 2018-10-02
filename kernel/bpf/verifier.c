@@ -436,6 +436,7 @@ static const char * const reg_type_str[] = {
 	[PTR_TO_FLOW_KEYS]	= "flow_keys",
 	[PTR_TO_SOCKET]		= "sock",
 	[PTR_TO_SOCKET_OR_NULL] = "sock_or_null",
+<<<<<<< HEAD
 	[PTR_TO_SOCK_COMMON]	= "sock_common",
 	[PTR_TO_SOCK_COMMON_OR_NULL] = "sock_common_or_null",
 <<<<<<< HEAD
@@ -451,6 +452,8 @@ static const char * const reg_type_str[] = {
 =======
 	[PTR_TO_FLOW_KEYS]	= "flow_keys",
 >>>>>>> 092bcdd27f36 (BACKPORT: flow_dissector: implements flow dissector BPF hook)
+=======
+>>>>>>> b0418982f223 (bpf: Add PTR_TO_SOCKET verifier type)
 };
 
 static void print_liveness(struct bpf_verifier_env *env,
@@ -1311,6 +1314,7 @@ static bool is_spillable_regtype(enum bpf_reg_type type)
 	case PTR_TO_FLOW_KEYS:
 	case CONST_PTR_TO_MAP:
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	case PTR_TO_SOCKET:
 	case PTR_TO_SOCKET_OR_NULL:
@@ -1322,6 +1326,10 @@ static bool is_spillable_regtype(enum bpf_reg_type type)
 >>>>>>> 839ef3225e75 (bpf: Add struct bpf_tcp_sock and BPF_FUNC_tcp_sock)
 =======
 >>>>>>> e51e8ea81ed1 (SQUASH! bpf: Add a bpf_sock pointer to __sk_buff and a bpf_sk_fullsock helpe)
+=======
+	case PTR_TO_SOCKET:
+	case PTR_TO_SOCKET_OR_NULL:
+>>>>>>> b0418982f223 (bpf: Add PTR_TO_SOCKET verifier type)
 		return true;
 	default:
 		return false;
@@ -1756,6 +1764,7 @@ static int check_flow_keys_access(struct bpf_verifier_env *env, int off,
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 static int check_sock_access(struct bpf_verifier_env *env, int insn_idx,
 			     u32 regno, int off, int size,
 			     enum bpf_access_type t)
@@ -1800,6 +1809,23 @@ static int check_sock_access(struct bpf_verifier_env *env, int insn_idx,
 >>>>>>> 839ef3225e75 (bpf: Add struct bpf_tcp_sock and BPF_FUNC_tcp_sock)
 =======
 >>>>>>> 092bcdd27f36 (BACKPORT: flow_dissector: implements flow dissector BPF hook)
+=======
+static int check_sock_access(struct bpf_verifier_env *env, u32 regno, int off,
+			     int size, enum bpf_access_type t)
+{
+	struct bpf_reg_state *regs = cur_regs(env);
+	struct bpf_reg_state *reg = &regs[regno];
+	struct bpf_insn_access_aux info;
+	if (reg->smin_value < 0) {
+		return -EACCES;
+	}
+	if (!bpf_sock_is_valid_access(off, size, t, &info)) {
+		return -EACCES;
+	}
+	return 0;
+}
+
+>>>>>>> b0418982f223 (bpf: Add PTR_TO_SOCKET verifier type)
 static bool __is_pointer_value(bool allow_ptr_leaks,
 			       const struct bpf_reg_state *reg)
 {
@@ -1938,6 +1964,7 @@ static int check_ptr_alignment(struct bpf_verifier_env *env,
 		strict = true;
 		break;
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	case PTR_TO_SOCKET:
 		pointer_desc = "sock ";
@@ -1952,6 +1979,11 @@ static int check_ptr_alignment(struct bpf_verifier_env *env,
 >>>>>>> 839ef3225e75 (bpf: Add struct bpf_tcp_sock and BPF_FUNC_tcp_sock)
 =======
 >>>>>>> e51e8ea81ed1 (SQUASH! bpf: Add a bpf_sock pointer to __sk_buff and a bpf_sk_fullsock helpe)
+=======
+	case PTR_TO_SOCKET:
+		pointer_desc = "sock ";
+		break;
+>>>>>>> b0418982f223 (bpf: Add PTR_TO_SOCKET verifier type)
 	default:
 		break;
 	}
@@ -2214,13 +2246,10 @@ static int check_mem_access(struct bpf_verifier_env *env, int insn_idx, u32 regn
 					       value_regno);
 	} else if (reg_is_pkt_pointer(reg)) {
 		if (t == BPF_WRITE && !may_access_direct_pkt_data(env, NULL, t)) {
-			verbose(env, "cannot write into packet\n");
 			return -EACCES;
 		}
 		if (t == BPF_WRITE && value_regno >= 0 &&
 		    is_pointer_value(env, value_regno)) {
-			verbose(env, "R%d leaks addr into packet\n",
-				value_regno);
 			return -EACCES;
 		}
 		err = check_packet_access(env, regno, off, size, false);
@@ -2238,6 +2267,7 @@ static int check_mem_access(struct bpf_verifier_env *env, int insn_idx, u32 regn
 		}
 		err = check_flow_keys_access(env, off, size);
 <<<<<<< HEAD
+<<<<<<< HEAD
 	} else if (type_is_sk_pointer(reg->type)) {
 		if (t == BPF_WRITE) {
 			verbose(env, "R%d cannot write into %s\n",
@@ -2254,9 +2284,16 @@ static int check_mem_access(struct bpf_verifier_env *env, int insn_idx, u32 regn
 >>>>>>> 576f43b50573 (bpf: add writable context for raw tracepoints)
 =======
 >>>>>>> 092bcdd27f36 (BACKPORT: flow_dissector: implements flow dissector BPF hook)
+=======
+	} else if (reg->type == PTR_TO_SOCKET) {
+		if (t == BPF_WRITE) {
+			return -EACCES;
+		}
+		err = check_sock_access(env, regno, off, size, t);
+		if (!err && value_regno >= 0)
+			mark_reg_unknown(env, regs, value_regno);
+>>>>>>> b0418982f223 (bpf: Add PTR_TO_SOCKET verifier type)
 	} else {
-		verbose(env, "R%d invalid mem access '%s'\n", regno,
-			reg_type_str[reg->type]);
 		return -EACCES;
 	}
 
@@ -2670,6 +2707,7 @@ static int check_func_arg(struct bpf_verifier_env *env, u32 regno,
 			return err;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> e51e8ea81ed1 (SQUASH! bpf: Add a bpf_sock pointer to __sk_buff and a bpf_sk_fullsock helpe)
@@ -2678,10 +2716,13 @@ static int check_func_arg(struct bpf_verifier_env *env, u32 regno,
 		/* Any sk pointer can be ARG_PTR_TO_SOCK_COMMON */
 		if (!type_is_sk_pointer(type))
 			goto err_type;
+=======
+>>>>>>> b0418982f223 (bpf: Add PTR_TO_SOCKET verifier type)
 	} else if (arg_type == ARG_PTR_TO_SOCKET) {
 		expected_type = PTR_TO_SOCKET;
 		if (type != expected_type)
 			goto err_type;
+<<<<<<< HEAD
 		if (meta->ptr_id || !reg->id) {
 			verbose(env, "verifier internal error: mismatched references meta=%d, reg=%d\n",
 				meta->ptr_id, reg->id);
@@ -2714,6 +2755,10 @@ static int check_func_arg(struct bpf_verifier_env *env, u32 regno,
 =======
 >>>>>>> 23b07eb61eae (bpf: Add reference tracking to verifier)
 	} else if (arg_type_is_mem_ptr(arg_type)) {
+=======
+	} else if (arg_type == ARG_PTR_TO_MEM ||
+		   arg_type == ARG_PTR_TO_UNINIT_MEM) {
+>>>>>>> b0418982f223 (bpf: Add PTR_TO_SOCKET verifier type)
 		expected_type = PTR_TO_STACK;
 		/* One exception here. In case function allows for NULL to be
 		 * passed in as argument, it's a SCALAR_VALUE type. Final test
@@ -3473,6 +3518,7 @@ static int check_helper_call(struct bpf_verifier_env *env, int func_id, int insn
 		regs[BPF_REG_0].map_ptr = meta.map_ptr;
 		regs[BPF_REG_0].id = ++env->id_gen;
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	} else if (fn->ret_type == RET_PTR_TO_SOCKET_OR_NULL) {
 		int id = acquire_reference_state(env, insn_idx);
@@ -3512,6 +3558,12 @@ static int check_helper_call(struct bpf_verifier_env *env, int func_id, int insn
 =======
 		regs[BPF_REG_0].id = id;
 >>>>>>> 23b07eb61eae (bpf: Add reference tracking to verifier)
+=======
+	} else if (fn->ret_type == RET_PTR_TO_SOCKET_OR_NULL) {
+		mark_reg_known_zero(env, regs, BPF_REG_0);
+		regs[BPF_REG_0].type = PTR_TO_SOCKET_OR_NULL;
+		regs[BPF_REG_0].id = ++env->id_gen;
+>>>>>>> b0418982f223 (bpf: Add PTR_TO_SOCKET verifier type)
 	} else {
 		verbose(env, "unknown return type %d of func %s#%d\n",
 			fn->ret_type, func_id_name(func_id), func_id);
@@ -5051,12 +5103,15 @@ static void mark_ptr_or_null_reg(struct bpf_reg_state *reg, u32 id,
 		if (is_null) {
 			reg->type = SCALAR_VALUE;
 <<<<<<< HEAD
+<<<<<<< HEAD
 		} else if (reg->map_ptr->inner_map_meta) {
 			reg->type = CONST_PTR_TO_MAP;
 			reg->map_ptr = reg->map_ptr->inner_map_meta;
 		} else {
 			reg->type = PTR_TO_MAP_VALUE;
 =======
+=======
+>>>>>>> b0418982f223 (bpf: Add PTR_TO_SOCKET verifier type)
 		} else if (reg->type == PTR_TO_MAP_VALUE_OR_NULL) {
 			if (reg->map_ptr->inner_map_meta) {
 				reg->type = CONST_PTR_TO_MAP;
@@ -5064,6 +5119,7 @@ static void mark_ptr_or_null_reg(struct bpf_reg_state *reg, u32 id,
 			} else {
 				reg->type = PTR_TO_MAP_VALUE;
 			}
+<<<<<<< HEAD
 <<<<<<< HEAD
 		} else if (reg->type == PTR_TO_SOCKET_OR_NULL) {
 			reg->type = PTR_TO_SOCKET;
@@ -5093,6 +5149,10 @@ static void mark_ptr_or_null_reg(struct bpf_reg_state *reg, u32 id,
 			reg->id = 0;
 =======
 >>>>>>> 0ad772797b50 (bpf: Generalize ptr_or_null regs check)
+=======
+		} else if (reg->type == PTR_TO_SOCKET_OR_NULL) {
+			reg->type = PTR_TO_SOCKET;
+>>>>>>> b0418982f223 (bpf: Add PTR_TO_SOCKET verifier type)
 		}
 	}
 }
@@ -6293,9 +6353,14 @@ static bool regsafe(struct bpf_verifier_env *env, struct bpf_reg_state *rold,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> e51e8ea81ed1 (SQUASH! bpf: Add a bpf_sock pointer to __sk_buff and a bpf_sk_fullsock helpe)
+=======
+	case PTR_TO_SOCKET:
+	case PTR_TO_SOCKET_OR_NULL:
+>>>>>>> b0418982f223 (bpf: Add PTR_TO_SOCKET verifier type)
 	case PTR_TO_FLOW_KEYS:
 	case PTR_TO_SOCKET:
 	case PTR_TO_SOCKET_OR_NULL:
@@ -6596,7 +6661,10 @@ static int is_state_visited(struct bpf_verifier_env *env, int insn_idx)
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> b0418982f223 (bpf: Add PTR_TO_SOCKET verifier type)
 /* Return true if it's OK to have the same insn return a different type. */
 static bool reg_type_mismatch_ok(enum bpf_reg_type type)
 {
@@ -6604,6 +6672,7 @@ static bool reg_type_mismatch_ok(enum bpf_reg_type type)
 	case PTR_TO_CTX:
 	case PTR_TO_SOCKET:
 	case PTR_TO_SOCKET_OR_NULL:
+<<<<<<< HEAD
 	case PTR_TO_SOCK_COMMON:
 	case PTR_TO_SOCK_COMMON_OR_NULL:
 <<<<<<< HEAD
@@ -6611,6 +6680,8 @@ static bool reg_type_mismatch_ok(enum bpf_reg_type type)
 	case PTR_TO_TCP_SOCK_OR_NULL:
 =======
 >>>>>>> e51e8ea81ed1 (SQUASH! bpf: Add a bpf_sock pointer to __sk_buff and a bpf_sk_fullsock helpe)
+=======
+>>>>>>> b0418982f223 (bpf: Add PTR_TO_SOCKET verifier type)
 		return false;
 	default:
 		return true;
@@ -6634,7 +6705,10 @@ static bool reg_type_mismatch(enum bpf_reg_type src, enum bpf_reg_type prev)
 			       !reg_type_mismatch_ok(prev));
 }
 
+<<<<<<< HEAD
 >>>>>>> 839ef3225e75 (bpf: Add struct bpf_tcp_sock and BPF_FUNC_tcp_sock)
+=======
+>>>>>>> b0418982f223 (bpf: Add PTR_TO_SOCKET verifier type)
 static int do_check(struct bpf_verifier_env *env)
 {
 	struct bpf_verifier_state *state;
@@ -6774,10 +6848,7 @@ static int do_check(struct bpf_verifier_env *env)
 				 * save type to validate intersecting paths
 				 */
 				*prev_src_type = src_reg_type;
-
-			} else if (src_reg_type != *prev_src_type &&
-				   (src_reg_type == PTR_TO_CTX ||
-				    *prev_src_type == PTR_TO_CTX)) {
+			} else if (reg_type_mismatch(src_reg_type, *prev_src_type)) {
 				/* ABuser program is trying to use the same insn
 				 * dst_reg = *(u32*) (src_reg + off)
 				 * with different pointer types:
@@ -6822,9 +6893,7 @@ static int do_check(struct bpf_verifier_env *env)
 
 			if (*prev_dst_type == NOT_INIT) {
 				*prev_dst_type = dst_reg_type;
-			} else if (dst_reg_type != *prev_dst_type &&
-				   (dst_reg_type == PTR_TO_CTX ||
-				    *prev_dst_type == PTR_TO_CTX)) {
+			} else if (reg_type_mismatch(dst_reg_type, *prev_dst_type)) {
 				verbose(env, "same insn cannot be used with different pointers\n");
 				return -EINVAL;
 			}
@@ -7360,7 +7429,7 @@ static int convert_ctx_accesses(struct bpf_verifier_env *env)
 		}
 	}
 
-	if (!ops->convert_ctx_access || bpf_prog_is_dev_bound(env->prog->aux))
+	if (bpf_prog_is_dev_bound(env->prog->aux))
 		return 0;
 
 	insn = env->prog->insnsi + delta;
@@ -7368,6 +7437,7 @@ static int convert_ctx_accesses(struct bpf_verifier_env *env)
 	for (i = 0; i < insn_cnt; i++, insn++) {
 		bool ctx_access;
 
+		bpf_convert_ctx_access_t convert_ctx_access;
 		if (insn->code == (BPF_LDX | BPF_MEM | BPF_B) ||
 		    insn->code == (BPF_LDX | BPF_MEM | BPF_H) ||
 		    insn->code == (BPF_LDX | BPF_MEM | BPF_W) ||
@@ -7409,9 +7479,12 @@ static int convert_ctx_accesses(struct bpf_verifier_env *env)
 		if (!ctx_access)
 			continue;
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 		if (env->insn_aux_data[i + delta].ptr_type != PTR_TO_CTX)
 =======
+=======
+>>>>>>> b0418982f223 (bpf: Add PTR_TO_SOCKET verifier type)
 		switch (env->insn_aux_data[i + delta].ptr_type) {
 		case PTR_TO_CTX:
 			if (!ops->convert_ctx_access)
@@ -7419,6 +7492,7 @@ static int convert_ctx_accesses(struct bpf_verifier_env *env)
 			convert_ctx_access = ops->convert_ctx_access;
 			break;
 		case PTR_TO_SOCKET:
+<<<<<<< HEAD
 		case PTR_TO_SOCK_COMMON:
 			convert_ctx_access = bpf_sock_convert_ctx_access;
 			break;
@@ -7427,8 +7501,13 @@ static int convert_ctx_accesses(struct bpf_verifier_env *env)
 			break;
 		default:
 >>>>>>> 839ef3225e75 (bpf: Add struct bpf_tcp_sock and BPF_FUNC_tcp_sock)
+=======
+			convert_ctx_access = bpf_sock_convert_ctx_access;
+			break;
+		default:
+>>>>>>> b0418982f223 (bpf: Add PTR_TO_SOCKET verifier type)
 			continue;
-
+		}
 		ctx_field_size = env->insn_aux_data[i + delta].ctx_field_size;
 		size = BPF_LDST_BYTES(insn);
 
@@ -7459,8 +7538,8 @@ static int convert_ctx_accesses(struct bpf_verifier_env *env)
 		}
 
 		target_size = 0;
-		cnt = ops->convert_ctx_access(type, insn, insn_buf, env->prog,
-					      &target_size);
+		cnt = convert_ctx_access(type, insn, insn_buf, env->prog,
+					 &target_size);
 		if (cnt == 0 || cnt >= ARRAY_SIZE(insn_buf) ||
 		    (ctx_field_size && !target_size)) {
 			verbose(env, "bpf verifier is misconfigured\n");

@@ -219,6 +219,7 @@ enum bpf_arg_type {
 	ARG_ANYTHING,		/* any (initialized) argument is ok */
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	ARG_PTR_TO_SPIN_LOCK,	/* pointer to bpf_spin_lock */
 	ARG_PTR_TO_SOCK_COMMON,	/* pointer to sock_common */
@@ -236,6 +237,9 @@ enum bpf_arg_type {
 	ARG_PTR_TO_SOCKET,	/* pointer to bpf_sock */
 	ARG_PTR_TO_SPIN_LOCK,	/* pointer to bpf_spin_lock */
 >>>>>>> d1efffd3c35e (bpf: introduce bpf_spin_lock)
+=======
+	ARG_PTR_TO_SOCKET,	/* pointer to bpf_sock */
+>>>>>>> b0418982f223 (bpf: Add PTR_TO_SOCKET verifier type)
 };
 
 /* type of values returned from helper functions */
@@ -245,6 +249,7 @@ enum bpf_return_type {
 	RET_PTR_TO_MAP_VALUE,		/* returns a pointer to map elem value */
 	RET_PTR_TO_MAP_VALUE_OR_NULL,	/* returns a pointer to map elem value or NULL */
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	RET_PTR_TO_SOCKET_OR_NULL,	/* returns a pointer to a socket or NULL */
 	RET_PTR_TO_TCP_SOCK_OR_NULL,	/* returns a pointer to a tcp_sock or NULL */
@@ -253,6 +258,9 @@ enum bpf_return_type {
 >>>>>>> f79bda81b79c (bpf: allow helpers to return PTR_TO_SOCK_COMMON)
 =======
 >>>>>>> 839ef3225e75 (bpf: Add struct bpf_tcp_sock and BPF_FUNC_tcp_sock)
+=======
+	RET_PTR_TO_SOCKET_OR_NULL,	/* returns a pointer to a socket or NULL */
+>>>>>>> b0418982f223 (bpf: Add PTR_TO_SOCKET verifier type)
 };
 
 /* eBPF function prototype used by verifier to allow BPF_CALLs from eBPF programs
@@ -309,6 +317,7 @@ enum bpf_reg_type {
 	PTR_TO_FLOW_KEYS,	 /* reg points to bpf_flow_keys */
 	PTR_TO_SOCKET,		 /* reg points to struct bpf_sock */
 	PTR_TO_SOCKET_OR_NULL,	 /* reg points to struct bpf_sock or NULL */
+<<<<<<< HEAD
 	PTR_TO_SOCK_COMMON,	 /* reg points to sock_common */
 	PTR_TO_SOCK_COMMON_OR_NULL, /* reg points to sock_common or NULL */
 <<<<<<< HEAD
@@ -324,6 +333,8 @@ enum bpf_reg_type {
 =======
 	PTR_TO_FLOW_KEYS,	 /* reg points to bpf_flow_keys */
 >>>>>>> 092bcdd27f36 (BACKPORT: flow_dissector: implements flow dissector BPF hook)
+=======
+>>>>>>> b0418982f223 (bpf: Add PTR_TO_SOCKET verifier type)
 };
 
 /* The information passed from prog-specific *_is_valid_access
@@ -503,6 +514,11 @@ const struct bpf_func_proto *bpf_get_trace_printk_proto(void);
 
 typedef unsigned long (*bpf_ctx_copy_t)(void *dst, const void *src,
 					unsigned long off, unsigned long len);
+typedef u32 (*bpf_convert_ctx_access_t)(enum bpf_access_type type,
+					const struct bpf_insn *src,
+					struct bpf_insn *dst,
+					struct bpf_prog *prog,
+					u32 *target_size);
 
 u64 bpf_event_output(struct bpf_map *map, u64 flags, void *meta, u64 meta_size,
 		     void *ctx, u64 ctx_size, bpf_ctx_copy_t ctx_copy);
@@ -1031,11 +1047,15 @@ void bpf_user_rnd_init_once(void);
 u64 bpf_user_rnd_u32(u64 r1, u64 r2, u64 r3, u64 r4, u64 r5);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 #if defined(CONFIG_NET)
 bool bpf_sock_common_is_valid_access(int off, int size,
 				     enum bpf_access_type type,
 				     struct bpf_insn_access_aux *info);
+=======
+#if defined(CONFIG_NET)
+>>>>>>> b0418982f223 (bpf: Add PTR_TO_SOCKET verifier type)
 bool bpf_sock_is_valid_access(int off, int size, enum bpf_access_type type,
 			      struct bpf_insn_access_aux *info);
 u32 bpf_sock_convert_ctx_access(enum bpf_access_type type,
@@ -1044,12 +1064,15 @@ u32 bpf_sock_convert_ctx_access(enum bpf_access_type type,
 				struct bpf_prog *prog,
 				u32 *target_size);
 #else
+<<<<<<< HEAD
 static inline bool bpf_sock_common_is_valid_access(int off, int size,
 						   enum bpf_access_type type,
 						   struct bpf_insn_access_aux *info)
 {
 	return false;
 }
+=======
+>>>>>>> b0418982f223 (bpf: Add PTR_TO_SOCKET verifier type)
 static inline bool bpf_sock_is_valid_access(int off, int size,
 					    enum bpf_access_type type,
 					    struct bpf_insn_access_aux *info)
@@ -1065,6 +1088,7 @@ static inline u32 bpf_sock_convert_ctx_access(enum bpf_access_type type,
 	return 0;
 }
 #endif
+<<<<<<< HEAD
 
 #ifdef CONFIG_INET
 bool bpf_tcp_sock_is_valid_access(int off, int size, enum bpf_access_type type,
@@ -1093,4 +1117,6 @@ static inline u32 bpf_tcp_sock_convert_ctx_access(enum bpf_access_type type,
 #endif /* CONFIG_INET */
 
 >>>>>>> 839ef3225e75 (bpf: Add struct bpf_tcp_sock and BPF_FUNC_tcp_sock)
+=======
+>>>>>>> b0418982f223 (bpf: Add PTR_TO_SOCKET verifier type)
 #endif /* _LINUX_BPF_H */
