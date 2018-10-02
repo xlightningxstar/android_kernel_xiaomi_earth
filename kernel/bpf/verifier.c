@@ -546,25 +546,29 @@ static void print_verifier_state(struct bpf_verifier_env *env,
 	verbose(env, "\n");
 }
 
-static int copy_stack_state(struct bpf_func_state *dst,
-			    const struct bpf_func_state *src)
-{
-	if (!src->stack)
-		return 0;
-	if (WARN_ON_ONCE(dst->allocated_stack < src->allocated_stack)) {
-		/* internal bug, make state invalid to reject the program */
-		memset(dst, 0, sizeof(*dst));
-		return -EFAULT;
-	}
-	memcpy(dst->stack, src->stack,
-	       sizeof(*src->stack) * (src->allocated_stack / BPF_REG_SIZE));
-	return 0;
+#define COPY_STATE_FN(NAME, COUNT, FIELD, SIZE)				\
+static int copy_##NAME##_state(struct bpf_func_state *dst,		\
+			       const struct bpf_func_state *src)	\
+{									\
+	if (!src->FIELD)						\
+		return 0;						\
+	if (WARN_ON_ONCE(dst->COUNT < src->COUNT)) {			\
+		/* internal bug, make state invalid to reject the program */ \
+		memset(dst, 0, sizeof(*dst));				\
+		return -EFAULT;						\
+	}								\
+	memcpy(dst->FIELD, src->FIELD,					\
+	       sizeof(*src->FIELD) * (src->COUNT / SIZE));		\
+	return 0;							\
 }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
 /* copy_reference_state() */
 COPY_STATE_FN(reference, acquired_refs, refs, 1)
+=======
+>>>>>>> 929aa62eebd5 (bpf: Macrofy stack state copy)
 /* copy_stack_state() */
 COPY_STATE_FN(stack, allocated_stack, stack, BPF_REG_SIZE)
 #undef COPY_STATE_FN
@@ -602,13 +606,19 @@ static int realloc_##NAME##_state(struct bpf_func_state *state, int size, \
 	state->FIELD = new_##FIELD;					\
 	return 0;							\
 }
+<<<<<<< HEAD
 /* realloc_reference_state() */
 REALLOC_STATE_FN(reference, acquired_refs, refs, 1)
+=======
+>>>>>>> 929aa62eebd5 (bpf: Macrofy stack state copy)
 /* realloc_stack_state() */
 REALLOC_STATE_FN(stack, allocated_stack, stack, BPF_REG_SIZE)
 #undef REALLOC_STATE_FN
 
+<<<<<<< HEAD
 >>>>>>> 23b07eb61eae (bpf: Add reference tracking to verifier)
+=======
+>>>>>>> 929aa62eebd5 (bpf: Macrofy stack state copy)
 /* do_check() starts with zero-sized stack in struct bpf_verifier_state to
  * make it consume minimal amount of memory. check_stack_write() access from
  * the program calls into realloc_func_state() to grow the stack size.
@@ -619,6 +629,7 @@ REALLOC_STATE_FN(stack, allocated_stack, stack, BPF_REG_SIZE)
 static int realloc_func_state(struct bpf_func_state *state, int stack_size,
 			      int refs_size, bool copy_old)
 {
+<<<<<<< HEAD
 <<<<<<< HEAD
 	u32 old_size = state->allocated_stack;
 	struct bpf_stack_state *new_stack;
@@ -738,6 +749,9 @@ static int transfer_reference_state(struct bpf_func_state *dst,
 =======
 >>>>>>> 23b07eb61eae (bpf: Add reference tracking to verifier)
 	return 0;
+=======
+	return realloc_stack_state(state, size, copy_old);
+>>>>>>> 929aa62eebd5 (bpf: Macrofy stack state copy)
 }
 
 static void free_func_state(struct bpf_func_state *state)
