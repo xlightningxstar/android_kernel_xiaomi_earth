@@ -2242,8 +2242,11 @@ union bpf_attr {
  *		**CONFIG_NET** configuration option.
  *	Return
  *		Pointer to *struct bpf_sock*, or NULL in case of failure.
+<<<<<<< HEAD
  *		For sockets with reuseport option, *struct bpf_sock*
  *		return is from reuse->socks[] using hash of the packet.
+=======
+>>>>>>> a5bc57e3c5e5 (bpf: Add helper to retrieve socket in BPF)
  *
  * struct bpf_sock *bpf_sk_lookup_udp(void *ctx, struct bpf_sock_tuple *tuple, u32 tuple_size, u32 netns, u64 flags)
  *	Description
@@ -2276,8 +2279,11 @@ union bpf_attr {
  *		**CONFIG_NET** configuration option.
  *	Return
  *		Pointer to *struct bpf_sock*, or NULL in case of failure.
+<<<<<<< HEAD
  *		For sockets with reuseport option, *struct bpf_sock*
  *		return is from reuse->socks[] using hash of the packet.
+=======
+>>>>>>> a5bc57e3c5e5 (bpf: Add helper to retrieve socket in BPF)
  *
  * int bpf_sk_release(struct bpf_sock *sk)
  *	Description
@@ -2285,6 +2291,7 @@ union bpf_attr {
  *		pointer that was returned from bpf_sk_lookup_xxx\ ().
  *	Return
  *		0 on success, or a negative error in case of failure.
+<<<<<<< HEAD
  *
  * struct bpf_tcp_sock *bpf_tcp_sock(struct bpf_sock *sk)
  *	Description
@@ -2334,6 +2341,8 @@ union bpf_attr {
 >>>>>>> 5c7addaafc8a (bpf: Introduce bpf sk local storage)
 =======
 >>>>>>> 839ef3225e75 (bpf: Add struct bpf_tcp_sock and BPF_FUNC_tcp_sock)
+=======
+>>>>>>> a5bc57e3c5e5 (bpf: Add helper to retrieve socket in BPF)
  */
 #define __BPF_FUNC_MAPPER(FN)		\
 	FN(unspec),			\
@@ -2634,6 +2643,7 @@ struct bpf_sock {
 };
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 struct bpf_tcp_sock {
 	__u32 snd_cwnd;		/* Sending congestion window		*/
@@ -2674,6 +2684,8 @@ struct bpf_tcp_sock {
 				 */
 };
 
+=======
+>>>>>>> a5bc57e3c5e5 (bpf: Add helper to retrieve socket in BPF)
 struct bpf_sock_tuple {
 	union {
 		struct {
@@ -2691,7 +2703,10 @@ struct bpf_sock_tuple {
 	};
 };
 
+<<<<<<< HEAD
 >>>>>>> 839ef3225e75 (bpf: Add struct bpf_tcp_sock and BPF_FUNC_tcp_sock)
+=======
+>>>>>>> a5bc57e3c5e5 (bpf: Add helper to retrieve socket in BPF)
 #define XDP_PACKET_HEADROOM 256
 
 /* User return codes for XDP prog type.

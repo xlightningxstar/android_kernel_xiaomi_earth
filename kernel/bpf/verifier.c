@@ -9,6 +9,27 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
+<<<<<<< HEAD
+=======
+ *
+ * The following reference types represent a potential reference to a kernel
+ * resource which, after first being allocated, must be checked and freed by
+ * the BPF program:
+ * - PTR_TO_SOCKET_OR_NULL, PTR_TO_SOCKET
+ *
+ * When the verifier sees a helper call return a reference type, it allocates a
+ * pointer id for the reference and stores it in the current function state.
+ * Similar to the way that PTR_TO_MAP_VALUE_OR_NULL is converted into
+ * PTR_TO_MAP_VALUE, PTR_TO_SOCKET_OR_NULL becomes PTR_TO_SOCKET when the type
+ * passes through a NULL-check conditional. For the branch wherein the state is
+ * changed to CONST_IMM, the verifier releases the reference.
+ *
+ * For each helper function that allocates a reference, such as
+ * bpf_sk_lookup_tcp(), there is a corresponding release function, such as
+ * bpf_sk_release(). When a reference type passes into the release function,
+ * the verifier also releases the reference. If any unchecked or unreleased
+ * reference remains at the end of the program, the verifier rejects it.
+>>>>>>> a5bc57e3c5e5 (bpf: Add helper to retrieve socket in BPF)
  */
 #include <linux/kernel.h>
 #include <linux/types.h>

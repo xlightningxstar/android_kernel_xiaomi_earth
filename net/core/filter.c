@@ -70,13 +70,19 @@
 #include <net/seg6.h>
 #include <net/seg6_local.h>
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> a5bc57e3c5e5 (bpf: Add helper to retrieve socket in BPF)
 #include <net/net_namespace.h>
 #include <net/udp.h>
 #include <net/inet_hashtables.h>
 #include <net/inet6_hashtables.h>
+<<<<<<< HEAD
 #include <net/bpf_sk_storage.h>
 >>>>>>> 5c7addaafc8a (bpf: Introduce bpf sk local storage)
+=======
+>>>>>>> a5bc57e3c5e5 (bpf: Add helper to retrieve socket in BPF)
 
 /**
  *	sk_filter_trim_cap - run a packet through a socket filter
@@ -3351,6 +3357,7 @@ static const struct bpf_func_proto bpf_xdp_redirect_map_proto = {
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> 7d03f4a23b18 (bpf: Extend the sk_lookup() helper to XDP hookpoint.)
@@ -3358,35 +3365,61 @@ static const struct bpf_func_proto bpf_xdp_redirect_map_proto = {
 struct sock *sk_lookup(struct net *net, struct bpf_sock_tuple *tuple,
 			      int dif, int sdif, u8 family, u8 proto)
 {
+=======
+struct sock *sk_lookup(struct net *net, struct bpf_sock_tuple *tuple,
+		       struct sk_buff *skb, u8 family, u8 proto)
+{
+	int dif = skb->dev->ifindex;
+>>>>>>> a5bc57e3c5e5 (bpf: Add helper to retrieve socket in BPF)
 	bool refcounted = false;
 	struct sock *sk = NULL;
 	if (family == AF_INET) {
 		__be32 src4 = tuple->ipv4.saddr;
 		__be32 dst4 = tuple->ipv4.daddr;
+<<<<<<< HEAD
 
 		if (proto == IPPROTO_TCP)
 			sk = __inet_lookup(net, &tcp_hashinfo, NULL, 0,
+=======
+		int sdif = inet_sdif(skb);
+		if (proto == IPPROTO_TCP)
+			sk = __inet_lookup(net, &tcp_hashinfo, skb, 0,
+>>>>>>> a5bc57e3c5e5 (bpf: Add helper to retrieve socket in BPF)
 					   src4, tuple->ipv4.sport,
 					   dst4, tuple->ipv4.dport,
 					   dif, sdif, &refcounted);
 		else
 			sk = __udp4_lib_lookup(net, src4, tuple->ipv4.sport,
 					       dst4, tuple->ipv4.dport,
+<<<<<<< HEAD
 					       dif, sdif, &udp_table, NULL);
+=======
+					       dif, sdif, &udp_table, skb);
+>>>>>>> a5bc57e3c5e5 (bpf: Add helper to retrieve socket in BPF)
 #if IS_ENABLED(CONFIG_IPV6)
 	} else {
 		struct in6_addr *src6 = (struct in6_addr *)&tuple->ipv6.saddr;
 		struct in6_addr *dst6 = (struct in6_addr *)&tuple->ipv6.daddr;
+<<<<<<< HEAD
 
 		if (proto == IPPROTO_TCP)
 			sk = __inet6_lookup(net, &tcp_hashinfo, NULL, 0,
+=======
+		int sdif = inet6_sdif(skb);
+		if (proto == IPPROTO_TCP)
+			sk = __inet6_lookup(net, &tcp_hashinfo, skb, 0,
+>>>>>>> a5bc57e3c5e5 (bpf: Add helper to retrieve socket in BPF)
 					    src6, tuple->ipv6.sport,
 					    dst6, tuple->ipv6.dport,
 					    dif, sdif, &refcounted);
 		else
 			sk = __udp6_lib_lookup(net, src6, tuple->ipv6.sport,
 					       dst6, tuple->ipv6.dport,
+<<<<<<< HEAD
 					       dif, sdif, &udp_table, NULL);
+=======
+					       dif, sdif, &udp_table, skb);
+>>>>>>> a5bc57e3c5e5 (bpf: Add helper to retrieve socket in BPF)
 #endif
 	}
 	if (unlikely(sk && !refcounted && !sock_flag(sk, SOCK_RCU_FREE))) {
@@ -3401,6 +3434,7 @@ struct sock *sk_lookup(struct net *net, struct bpf_sock_tuple *tuple,
  * callers to satisfy BPF_CALL declarations.
  */
 static unsigned long
+<<<<<<< HEAD
 __bpf_sk_lookup(struct sk_buff *skb, struct bpf_sock_tuple *tuple, u32 len,
 		struct net *caller_net, u32 ifindex, u8 proto, u64 netns_id,
 		u64 flags)
@@ -3420,21 +3454,46 @@ __bpf_sk_lookup(struct sk_buff *skb, struct bpf_sock_tuple *tuple, u32 len,
 	else
 		sdif = inet6_sdif(skb);
 
+=======
+bpf_sk_lookup(struct sk_buff *skb, struct bpf_sock_tuple *tuple, u32 len,
+	      u8 proto, u64 netns_id, u64 flags)
+{
+	struct net *caller_net;
+	struct sock *sk = NULL;
+	u8 family = AF_UNSPEC;
+	struct net *net;
+	family = len == sizeof(tuple->ipv4) ? AF_INET : AF_INET6;
+	if (unlikely(family == AF_UNSPEC || netns_id > U32_MAX || flags))
+		goto out;
+	if (skb->dev)
+		caller_net = dev_net(skb->dev);
+	else
+		caller_net = sock_net(skb->sk);
+>>>>>>> a5bc57e3c5e5 (bpf: Add helper to retrieve socket in BPF)
 	if (netns_id) {
 		net = get_net_ns_by_id(caller_net, netns_id);
 		if (unlikely(!net))
 			goto out;
+<<<<<<< HEAD
 		sk = sk_lookup(net, tuple, ifindex, sdif, family, proto);
 		put_net(net);
 	} else {
 		net = caller_net;
 		sk = sk_lookup(net, tuple, ifindex, sdif, family, proto);
+=======
+		sk = sk_lookup(net, tuple, skb, family, proto);
+		put_net(net);
+	} else {
+		net = caller_net;
+		sk = sk_lookup(net, tuple, skb, family, proto);
+>>>>>>> a5bc57e3c5e5 (bpf: Add helper to retrieve socket in BPF)
 	}
 	if (sk)
 		sk = sk_to_full_sk(sk);
 out:
 	return (unsigned long) sk;
 }
+<<<<<<< HEAD
 
 static unsigned long
 bpf_sk_lookup(struct sk_buff *skb, struct bpf_sock_tuple *tuple, u32 len,
@@ -3455,6 +3514,8 @@ bpf_sk_lookup(struct sk_buff *skb, struct bpf_sock_tuple *tuple, u32 len,
 			      proto, netns_id, flags);
 }
 
+=======
+>>>>>>> a5bc57e3c5e5 (bpf: Add helper to retrieve socket in BPF)
 BPF_CALL_5(bpf_sk_lookup_tcp, struct sk_buff *, skb,
 	   struct bpf_sock_tuple *, tuple, u32, len, u64, netns_id, u64, flags)
 {
@@ -3500,6 +3561,7 @@ static const struct bpf_func_proto bpf_sk_release_proto = {
 	.arg1_type	= ARG_PTR_TO_SOCKET,
 };
 
+<<<<<<< HEAD
 BPF_CALL_5(bpf_xdp_sk_lookup_udp, struct xdp_buff *, ctx,
 	   struct bpf_sock_tuple *, tuple, u32, len, u32, netns_id, u64, flags)
 {
@@ -3710,6 +3772,8 @@ static const struct bpf_func_proto bpf_tcp_sock_proto = {
 #endif /* CONFIG_INET */
 
 >>>>>>> 7d03f4a23b18 (bpf: Extend the sk_lookup() helper to XDP hookpoint.)
+=======
+>>>>>>> a5bc57e3c5e5 (bpf: Add helper to retrieve socket in BPF)
 static unsigned long bpf_skb_copy(void *dst_buff, const void *skb,
 				  unsigned long off, unsigned long len)
 {
@@ -5297,22 +5361,28 @@ tc_cls_act_func_proto(enum bpf_func_id func_id, const struct bpf_prog *prog)
 =======
 	case BPF_FUNC_sk_fullsock:
 		return &bpf_sk_fullsock_proto;
+<<<<<<< HEAD
 	case BPF_FUNC_sk_storage_get:
 		return &bpf_sk_storage_get_proto;
 	case BPF_FUNC_sk_storage_delete:
 		return &bpf_sk_storage_delete_proto;
+=======
+>>>>>>> a5bc57e3c5e5 (bpf: Add helper to retrieve socket in BPF)
 	case BPF_FUNC_sk_lookup_tcp:
 		return &bpf_sk_lookup_tcp_proto;
 	case BPF_FUNC_sk_lookup_udp:
 		return &bpf_sk_lookup_udp_proto;
 	case BPF_FUNC_sk_release:
 		return &bpf_sk_release_proto;
+<<<<<<< HEAD
 	case BPF_FUNC_tcp_sock:
 		return &bpf_tcp_sock_proto;
 <<<<<<< HEAD
 >>>>>>> 5c7addaafc8a (bpf: Introduce bpf sk local storage)
 =======
 >>>>>>> 839ef3225e75 (bpf: Add struct bpf_tcp_sock and BPF_FUNC_tcp_sock)
+=======
+>>>>>>> a5bc57e3c5e5 (bpf: Add helper to retrieve socket in BPF)
 	default:
 		return bpf_base_func_proto(func_id);
 	}
