@@ -2002,12 +2002,17 @@ static int check_func_arg(struct bpf_verifier_env *env, u32 regno,
 
 	if (arg_type == ARG_PTR_TO_MAP_KEY ||
 <<<<<<< HEAD
+<<<<<<< HEAD
 	    arg_type == ARG_PTR_TO_MAP_VALUE) {
 =======
 	    arg_type == ARG_PTR_TO_MAP_VALUE ||
 	    arg_type == ARG_PTR_TO_UNINIT_MAP_VALUE ||
 	    arg_type == ARG_PTR_TO_MAP_VALUE_OR_NULL) {
 >>>>>>> 5c7addaafc8a (bpf: Introduce bpf sk local storage)
+=======
+	    arg_type == ARG_PTR_TO_MAP_VALUE ||
+	    arg_type == ARG_PTR_TO_UNINIT_MAP_VALUE) {
+>>>>>>> f628a795d0a4 (bpf/verifier: add ARG_PTR_TO_UNINIT_MAP_VALUE)
 		expected_type = PTR_TO_STACK;
 		if (register_is_null(reg) &&
 		    arg_type == ARG_PTR_TO_MAP_VALUE_OR_NULL)
@@ -2111,6 +2116,7 @@ static int check_func_arg(struct bpf_verifier_env *env, u32 regno,
 					      meta->map_ptr->key_size, false,
 					      NULL);
 <<<<<<< HEAD
+<<<<<<< HEAD
 	} else if (arg_type == ARG_PTR_TO_MAP_VALUE) {
 =======
 	} else if (arg_type == ARG_PTR_TO_MAP_VALUE ||
@@ -2118,6 +2124,10 @@ static int check_func_arg(struct bpf_verifier_env *env, u32 regno,
 		    !register_is_null(reg)) ||
 		   arg_type == ARG_PTR_TO_UNINIT_MAP_VALUE) {
 >>>>>>> 5c7addaafc8a (bpf: Introduce bpf sk local storage)
+=======
+	} else if (arg_type == ARG_PTR_TO_MAP_VALUE ||
+		   arg_type == ARG_PTR_TO_UNINIT_MAP_VALUE) {
+>>>>>>> f628a795d0a4 (bpf/verifier: add ARG_PTR_TO_UNINIT_MAP_VALUE)
 		/* bpf_map_xxx(..., map_ptr, ..., value) call:
 		 * check [value, value + map->value_size) validity
 		 */
@@ -2126,9 +2136,10 @@ static int check_func_arg(struct bpf_verifier_env *env, u32 regno,
 			verbose(env, "invalid map_ptr to access map->value\n");
 			return -EACCES;
 		}
+		meta->raw_mode = (arg_type == ARG_PTR_TO_UNINIT_MAP_VALUE);
 		err = check_helper_mem_access(env, regno,
 					      meta->map_ptr->value_size, false,
-					      NULL);
+					      meta);
 	} else if (arg_type_is_mem_size(arg_type)) {
 		bool zero_size_allowed = (arg_type == ARG_CONST_SIZE_OR_ZERO);
 

@@ -183,10 +183,14 @@ enum bpf_arg_type {
 	ARG_PTR_TO_MAP_KEY,	/* pointer to stack used as map key */
 	ARG_PTR_TO_MAP_VALUE,	/* pointer to stack used as map value */
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	ARG_PTR_TO_UNINIT_MAP_VALUE,	/* pointer to valid memory used to store a map value */
 	ARG_PTR_TO_MAP_VALUE_OR_NULL,	/* pointer to stack used as map value or NULL */
 >>>>>>> 5c7addaafc8a (bpf: Introduce bpf sk local storage)
+=======
+	ARG_PTR_TO_UNINIT_MAP_VALUE,	/* pointer to valid memory used to store a map value */
+>>>>>>> f628a795d0a4 (bpf/verifier: add ARG_PTR_TO_UNINIT_MAP_VALUE)
 
 	/* the following constraints used to prototype bpf_memcmp() and other
 	 * functions that access data on eBPF program stack
