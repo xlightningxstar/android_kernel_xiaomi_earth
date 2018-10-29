@@ -3350,7 +3350,10 @@ static const struct bpf_func_proto bpf_xdp_redirect_map_proto = {
 };
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 7d03f4a23b18 (bpf: Extend the sk_lookup() helper to XDP hookpoint.)
 #ifdef CONFIG_INET
 struct sock *sk_lookup(struct net *net, struct bpf_sock_tuple *tuple,
 			      int dif, int sdif, u8 family, u8 proto)
@@ -3540,6 +3543,7 @@ static const struct bpf_func_proto bpf_xdp_sk_lookup_tcp_proto = {
 	.arg4_type      = ARG_ANYTHING,
 	.arg5_type      = ARG_ANYTHING,
 };
+<<<<<<< HEAD
 
 BPF_CALL_5(bpf_sock_addr_sk_lookup_tcp, struct bpf_sock_addr_kern *, ctx,
 	   struct bpf_sock_tuple *, tuple, u32, len, u64, netns_id, u64, flags)
@@ -3702,6 +3706,10 @@ static const struct bpf_func_proto bpf_tcp_sock_proto = {
 #endif /* CONFIG_INET */
 
 >>>>>>> 205939c05648 (bpf: implement getsockopt and setsockopt hooks)
+=======
+#endif /* CONFIG_INET */
+
+>>>>>>> 7d03f4a23b18 (bpf: Extend the sk_lookup() helper to XDP hookpoint.)
 static unsigned long bpf_skb_copy(void *dst_buff, const void *skb,
 				  unsigned long off, unsigned long len)
 {
@@ -5501,6 +5509,14 @@ lwt_xmit_func_proto(enum bpf_func_id func_id, const struct bpf_prog *prog)
 		return &bpf_l4_csum_replace_proto;
 	case BPF_FUNC_set_hash_invalid:
 		return &bpf_set_hash_invalid_proto;
+#ifdef CONFIG_INET
+	case BPF_FUNC_sk_lookup_udp:
+		return &bpf_xdp_sk_lookup_udp_proto;
+	case BPF_FUNC_sk_lookup_tcp:
+		return &bpf_xdp_sk_lookup_tcp_proto;
+	case BPF_FUNC_sk_release:
+		return &bpf_sk_release_proto;
+#endif
 	default:
 		return lwt_out_func_proto(func_id, prog);
 	}
