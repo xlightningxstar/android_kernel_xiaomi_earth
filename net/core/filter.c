@@ -3577,6 +3577,7 @@ static const struct bpf_func_proto bpf_sock_addr_sk_lookup_udp_proto = {
 	.arg5_type	= ARG_ANYTHING,
 };
 
+<<<<<<< HEAD
 bool bpf_tcp_sock_is_valid_access(int off, int size, enum bpf_access_type type,
 				  struct bpf_insn_access_aux *info)
 {
@@ -3696,6 +3697,8 @@ static const struct bpf_func_proto bpf_tcp_sock_proto = {
 	.arg1_type	= ARG_PTR_TO_SOCK_COMMON,
 };
 
+=======
+>>>>>>> 331f287c1bfd (bpf: Support socket lookup in CGROUP_SOCK_ADDR progs)
 #endif /* CONFIG_INET */
 
 >>>>>>> 205939c05648 (bpf: implement getsockopt and setsockopt hooks)
@@ -5141,6 +5144,14 @@ sock_addr_func_proto(enum bpf_func_id func_id, const struct bpf_prog *prog)
 		return &bpf_get_socket_cookie_sock_addr_proto;
 	case BPF_FUNC_get_local_storage:
 		return &bpf_get_local_storage_proto;
+#ifdef CONFIG_INET
+	case BPF_FUNC_sk_lookup_tcp:
+		return &bpf_sock_addr_sk_lookup_tcp_proto;
+	case BPF_FUNC_sk_lookup_udp:
+		return &bpf_sock_addr_sk_lookup_udp_proto;
+	case BPF_FUNC_sk_release:
+		return &bpf_sk_release_proto;
+#endif /* CONFIG_INET */
 	default:
 		return bpf_base_func_proto(func_id);
 	}
