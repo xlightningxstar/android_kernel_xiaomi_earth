@@ -316,12 +316,15 @@ static bool btf_type_is_modifier(const struct btf_type *t)
 
 static bool btf_type_is_void(const struct btf_type *t)
 {
-	/* void => no type and size info.
-	 * Hence, FWD is also treated as void.
-	 */
-	return t == &btf_void || BTF_INFO_KIND(t->info) == BTF_KIND_FWD;
+	return t == &btf_void;
+
+}
+static bool btf_type_is_fwd(const struct btf_type *t)
+{
+	return BTF_INFO_KIND(t->info) == BTF_KIND_FWD;
 }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 static bool btf_type_is_void_or_null(const struct btf_type *t)
 {
@@ -341,12 +344,20 @@ static bool btf_type_nosize(const struct btf_type *t)
 {
 	return btf_type_is_void(t) || btf_type_is_fwd(t) ||
 	       btf_type_is_func(t) || btf_type_is_func_proto(t);
+=======
+static bool btf_type_nosize(const struct btf_type *t)
+{
+	return btf_type_is_void(t) || btf_type_is_fwd(t);
+>>>>>>> abe97803f1e5 (bpf: btf: Break up btf_type_is_void())
 }
 
 static bool btf_type_nosize_or_null(const struct btf_type *t)
 {
 	return !t || btf_type_nosize(t);
+<<<<<<< HEAD
 >>>>>>> 0a4cfb8da6d4 (bpf: btf: Add BTF_KIND_FUNC and BTF_KIND_FUNC_PROTO)
+=======
+>>>>>>> abe97803f1e5 (bpf: btf: Break up btf_type_is_void())
 }
 
 /* union is only a special case of struct:
@@ -995,7 +1006,7 @@ const struct btf_type *btf_type_id_size(const struct btf *btf,
 	u32 size = 0;
 
 	size_type = btf_type_by_id(btf, size_type_id);
-	if (btf_type_is_void_or_null(size_type))
+	if (btf_type_nosize_or_null(size_type))
 		return NULL;
 
 	if (btf_type_has_size(size_type)) {
@@ -1011,7 +1022,7 @@ const struct btf_type *btf_type_id_size(const struct btf *btf,
 		size = btf->resolved_sizes[size_type_id];
 		size_type_id = btf->resolved_ids[size_type_id];
 		size_type = btf_type_by_id(btf, size_type_id);
-		if (btf_type_is_void(size_type))
+		if (btf_type_nosize_or_null(size_type))
 			return NULL;
 	}
 
@@ -1464,7 +1475,7 @@ static int btf_modifier_resolve(struct btf_verifier_env *env,
 
 <<<<<<< HEAD
 	/* "typedef void new_void", "const void"...etc */
-	if (btf_type_is_void(next_type))
+	if (btf_type_is_void(next_type) || btf_type_is_fwd(next_type))
 		goto resolved;
 
 =======
@@ -1481,7 +1492,7 @@ static int btf_modifier_resolve(struct btf_verifier_env *env,
 	 */
 <<<<<<< HEAD
 	if (!btf_type_id_size(btf, &next_type_id, &next_type_size) &&
-	    !btf_type_is_void(btf_type_id_resolve(btf, &next_type_id))) {
+	    !btf_type_nosize(btf_type_id_resolve(btf, &next_type_id))) {
 		btf_verifier_log_type(env, v->t, "Invalid type_id");
 		return -EINVAL;
 =======
@@ -1519,7 +1530,7 @@ static int btf_ptr_resolve(struct btf_verifier_env *env,
 
 <<<<<<< HEAD
 	/* "void *" */
-	if (btf_type_is_void(next_type))
+	if (btf_type_is_void(next_type) || btf_type_is_fwd(next_type))
 		goto resolved;
 
 =======
@@ -1552,7 +1563,7 @@ static int btf_ptr_resolve(struct btf_verifier_env *env,
 
 <<<<<<< HEAD
 	if (!btf_type_id_size(btf, &next_type_id, &next_type_size) &&
-	    !btf_type_is_void(btf_type_id_resolve(btf, &next_type_id))) {
+	    !btf_type_nosize(btf_type_id_resolve(btf, &next_type_id))) {
 		btf_verifier_log_type(env, v->t, "Invalid type_id");
 		return -EINVAL;
 =======
@@ -1745,7 +1756,7 @@ static int btf_array_resolve(struct btf_verifier_env *env,
 	/* Check array->index_type */
 	index_type_id = array->index_type;
 	index_type = btf_type_by_id(btf, index_type_id);
-	if (btf_type_is_void_or_null(index_type)) {
+	if (btf_type_nosize_or_null(index_type)) {
 		btf_verifier_log_type(env, v->t, "Invalid index");
 		return -EINVAL;
 	}
@@ -1764,7 +1775,7 @@ static int btf_array_resolve(struct btf_verifier_env *env,
 	/* Check array->type */
 	elem_type_id = array->type;
 	elem_type = btf_type_by_id(btf, elem_type_id);
-	if (btf_type_is_void_or_null(elem_type)) {
+	if (btf_type_nosize_or_null(elem_type)) {
 		btf_verifier_log_type(env, v->t,
 				      "Invalid elem");
 		return -EINVAL;
@@ -1985,7 +1996,7 @@ static int btf_struct_resolve(struct btf_verifier_env *env,
 		const struct btf_type *member_type = btf_type_by_id(env->btf,
 								member_type_id);
 
-		if (btf_type_is_void_or_null(member_type)) {
+		if (btf_type_nosize_or_null(member_type)) {
 			btf_verifier_log_member(env, v->t, member,
 						"Invalid member");
 			return -EINVAL;
