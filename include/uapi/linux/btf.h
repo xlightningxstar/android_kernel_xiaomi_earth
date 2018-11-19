@@ -42,7 +42,8 @@ struct btf_type {
 	/* "size" is used by INT, ENUM, STRUCT and UNION.
 	 * "size" tells the size of the type it is describing.
 	 *
-	 * "type" is used by PTR, TYPEDEF, VOLATILE, CONST and RESTRICT.
+	 * "type" is used by PTR, TYPEDEF, VOLATILE, CONST, RESTRICT,
+	 * FUNC and FUNC_PROTO.
 	 * "type" is a type_id referring to another type.
 	 */
 	union {
@@ -67,8 +68,10 @@ struct btf_type {
 #define BTF_KIND_VOLATILE	9	/* Volatile	*/
 #define BTF_KIND_CONST		10	/* Const	*/
 #define BTF_KIND_RESTRICT	11	/* Restrict	*/
-#define BTF_KIND_MAX		11
-#define NR_BTF_KINDS		12
+#define BTF_KIND_FUNC		12	/* Function	*/
+#define BTF_KIND_FUNC_PROTO	13	/* Function Proto	*/
+#define BTF_KIND_MAX		13
+#define NR_BTF_KINDS		14
 
 /* For some specific BTF_KIND, "struct btf_type" is immediately
  * followed by extra data.
@@ -120,6 +123,7 @@ struct btf_member {
 };
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 /* If the struct/union type info kind_flag is set, the
  * following two macros are used to access bitfield_size
@@ -128,6 +132,8 @@ struct btf_member {
 #define BTF_MEMBER_BITFIELD_SIZE(val)	((val) >> 24)
 #define BTF_MEMBER_BIT_OFFSET(val)	((val) & 0xffffff)
 
+=======
+>>>>>>> 0a4cfb8da6d4 (bpf: btf: Add BTF_KIND_FUNC and BTF_KIND_FUNC_PROTO)
 /* BTF_KIND_FUNC_PROTO is followed by multiple "struct btf_param".
  * The exact number of btf_param is stored in the vlen (of the
  * info in "struct btf_type").
@@ -136,5 +142,8 @@ struct btf_param {
 	__u32	name_off;
 	__u32	type;
 };
+<<<<<<< HEAD
 >>>>>>> 49f122c98900 (bpf: btf: fix struct/union/fwd types with kind_flag)
+=======
+>>>>>>> 0a4cfb8da6d4 (bpf: btf: Add BTF_KIND_FUNC and BTF_KIND_FUNC_PROTO)
 #endif /* _UAPI__LINUX_BTF_H__ */

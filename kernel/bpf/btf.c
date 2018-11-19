@@ -260,6 +260,8 @@ static const char * const btf_kind_str[NR_BTF_KINDS] = {
 	[BTF_KIND_VOLATILE]	= "VOLATILE",
 	[BTF_KIND_CONST]	= "CONST",
 	[BTF_KIND_RESTRICT]	= "RESTRICT",
+	[BTF_KIND_FUNC]		= "FUNC",
+	[BTF_KIND_FUNC_PROTO]	= "FUNC_PROTO",
 };
 
 struct btf_kind_operations {
@@ -285,6 +287,9 @@ struct btf_kind_operations {
 
 static const struct btf_kind_operations * const kind_ops[NR_BTF_KINDS];
 static struct btf_type btf_void;
+
+static int btf_resolve(struct btf_verifier_env *env,
+		       const struct btf_type *t, u32 type_id);
 
 static bool btf_type_is_modifier(const struct btf_type *t)
 {
@@ -317,9 +322,31 @@ static bool btf_type_is_void(const struct btf_type *t)
 	return t == &btf_void || BTF_INFO_KIND(t->info) == BTF_KIND_FWD;
 }
 
+<<<<<<< HEAD
 static bool btf_type_is_void_or_null(const struct btf_type *t)
 {
 	return !t || btf_type_is_void(t);
+=======
+static bool btf_type_is_func(const struct btf_type *t)
+{
+	return BTF_INFO_KIND(t->info) == BTF_KIND_FUNC;
+}
+
+static bool btf_type_is_func_proto(const struct btf_type *t)
+{
+	return BTF_INFO_KIND(t->info) == BTF_KIND_FUNC_PROTO;
+}
+
+static bool btf_type_nosize(const struct btf_type *t)
+{
+	return btf_type_is_void(t) || btf_type_is_fwd(t) ||
+	       btf_type_is_func(t) || btf_type_is_func_proto(t);
+}
+
+static bool btf_type_nosize_or_null(const struct btf_type *t)
+{
+	return !t || btf_type_nosize(t);
+>>>>>>> 0a4cfb8da6d4 (bpf: btf: Add BTF_KIND_FUNC and BTF_KIND_FUNC_PROTO)
 }
 
 /* union is only a special case of struct:
@@ -475,7 +502,6 @@ static bool btf_name_valid_identifier(const struct btf *btf, u32 offset)
 			return false;
 		src++;
 	}
-
 	return !*src;
 }
 
@@ -871,11 +897,15 @@ static bool env_type_is_resolve_sink(const struct btf_verifier_env *env,
 		/* int, enum or void is a sink */
 		return !btf_type_needs_resolve(next_type);
 	case RESOLVE_PTR:
-		/* int, enum, void, struct or array is a sink for ptr */
+		/* int, enum, void, struct, array, func or func_proto is a sink
+		 * for ptr
+		 */
 		return !btf_type_is_modifier(next_type) &&
 			!btf_type_is_ptr(next_type);
 	case RESOLVE_STRUCT_OR_ARRAY:
-		/* int, enum, void or ptr is a sink for struct and array */
+		/* int, enum, void, ptr, func or func_proto is a sink
+		 * for struct and array
+		 */
 		return !btf_type_is_modifier(next_type) &&
 			!btf_type_is_array(next_type) &&
 			!btf_type_is_struct(next_type);
@@ -1424,10 +1454,13 @@ static int btf_modifier_resolve(struct btf_verifier_env *env,
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	/* "typedef void new_void", "const void"...etc */
 	if (btf_type_is_void(next_type))
 		goto resolved;
 
+=======
+>>>>>>> 0a4cfb8da6d4 (bpf: btf: Add BTF_KIND_FUNC and BTF_KIND_FUNC_PROTO)
 	if (!env_type_is_resolve_sink(env, next_type) &&
 	    !env_type_is_resolved(env, next_type_id))
 		return env_stack_push(env, next_type, next_type_id);
@@ -1438,13 +1471,25 @@ static int btf_modifier_resolve(struct btf_verifier_env *env,
 	 * save us a few type-following when we use it later (e.g. in
 	 * pretty print).
 	 */
+<<<<<<< HEAD
 	if (!btf_type_id_size(btf, &next_type_id, &next_type_size) &&
 	    !btf_type_is_void(btf_type_id_resolve(btf, &next_type_id))) {
 		btf_verifier_log_type(env, v->t, "Invalid type_id");
 		return -EINVAL;
+=======
+	if (!btf_type_id_size(btf, &next_type_id, &next_type_size)) {
+		if (env_type_is_resolved(env, next_type_id))
+			next_type = btf_type_id_resolve(btf, &next_type_id);
+
+		/* "typedef void new_void", "const void"...etc */
+		if (!btf_type_is_void(next_type) &&
+		    !btf_type_is_fwd(next_type)) {
+			btf_verifier_log_type(env, v->t, "Invalid type_id");
+			return -EINVAL;
+		}
+>>>>>>> 0a4cfb8da6d4 (bpf: btf: Add BTF_KIND_FUNC and BTF_KIND_FUNC_PROTO)
 	}
 
-resolved:
 	env_stack_pop_resolved(env, next_type_id, next_type_size);
 
 	return 0;
@@ -1457,7 +1502,6 @@ static int btf_ptr_resolve(struct btf_verifier_env *env,
 	const struct btf_type *t = v->t;
 	u32 next_type_id = t->type;
 	struct btf *btf = env->btf;
-	u32 next_type_size = 0;
 
 	next_type = btf_type_by_id(btf, next_type_id);
 	if (!next_type) {
@@ -1465,10 +1509,13 @@ static int btf_ptr_resolve(struct btf_verifier_env *env,
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	/* "void *" */
 	if (btf_type_is_void(next_type))
 		goto resolved;
 
+=======
+>>>>>>> 0a4cfb8da6d4 (bpf: btf: Add BTF_KIND_FUNC and BTF_KIND_FUNC_PROTO)
 	if (!env_type_is_resolve_sink(env, next_type) &&
 	    !env_type_is_resolved(env, next_type_id))
 		return env_stack_push(env, next_type, next_type_id);
@@ -1495,13 +1542,25 @@ static int btf_ptr_resolve(struct btf_verifier_env *env,
 					      resolved_type_id);
 	}
 
+<<<<<<< HEAD
 	if (!btf_type_id_size(btf, &next_type_id, &next_type_size) &&
 	    !btf_type_is_void(btf_type_id_resolve(btf, &next_type_id))) {
 		btf_verifier_log_type(env, v->t, "Invalid type_id");
 		return -EINVAL;
+=======
+	if (!btf_type_id_size(btf, &next_type_id, NULL)) {
+		if (env_type_is_resolved(env, next_type_id))
+			next_type = btf_type_id_resolve(btf, &next_type_id);
+
+		if (!btf_type_is_void(next_type) &&
+		    !btf_type_is_fwd(next_type) &&
+		    !btf_type_is_func_proto(next_type)) {
+			btf_verifier_log_type(env, v->t, "Invalid type_id");
+			return -EINVAL;
+		}
+>>>>>>> 0a4cfb8da6d4 (bpf: btf: Add BTF_KIND_FUNC and BTF_KIND_FUNC_PROTO)
 	}
 
-resolved:
 	env_stack_pop_resolved(env, next_type_id, 0);
 
 	return 0;
@@ -2186,7 +2245,10 @@ static struct btf_kind_operations enum_ops = {
 };
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 0a4cfb8da6d4 (bpf: btf: Add BTF_KIND_FUNC and BTF_KIND_FUNC_PROTO)
 static s32 btf_func_proto_check_meta(struct btf_verifier_env *env,
 				     const struct btf_type *t,
 				     u32 meta_left)
@@ -2205,11 +2267,14 @@ static s32 btf_func_proto_check_meta(struct btf_verifier_env *env,
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	if (btf_type_kflag(t)) {
 		btf_verifier_log_type(env, t, "Invalid btf_info kind_flag");
 		return -EINVAL;
 	}
 
+=======
+>>>>>>> 0a4cfb8da6d4 (bpf: btf: Add BTF_KIND_FUNC and BTF_KIND_FUNC_PROTO)
 	btf_verifier_log_type(env, t, NULL);
 	return meta_needed;
 }
@@ -2233,17 +2298,29 @@ static void btf_func_proto_log(struct btf_verifier_env *env,
 	}
 
 	btf_verifier_log(env, "%u %s", args[0].type,
+<<<<<<< HEAD
 			 __btf_name_by_offset(env->btf,
 					    args[0].name_off));
 	for (i = 1; i < nr_args - 1; i++)
 		btf_verifier_log(env, ", %u %s", args[i].type,
 				 __btf_name_by_offset(env->btf,
+=======
+			 btf_name_by_offset(env->btf,
+					    args[0].name_off));
+	for (i = 1; i < nr_args - 1; i++)
+		btf_verifier_log(env, ", %u %s", args[i].type,
+				 btf_name_by_offset(env->btf,
+>>>>>>> 0a4cfb8da6d4 (bpf: btf: Add BTF_KIND_FUNC and BTF_KIND_FUNC_PROTO)
 						    args[i].name_off));
 	if (nr_args > 1) {
 		const struct btf_param *last_arg = &args[nr_args - 1];
 		if (last_arg->type)
 			btf_verifier_log(env, ", %u %s", last_arg->type,
+<<<<<<< HEAD
 					 __btf_name_by_offset(env->btf,
+=======
+					 btf_name_by_offset(env->btf,
+>>>>>>> 0a4cfb8da6d4 (bpf: btf: Add BTF_KIND_FUNC and BTF_KIND_FUNC_PROTO)
 							    last_arg->name_off));
 		else
 			btf_verifier_log(env, ", vararg");
@@ -2265,7 +2342,10 @@ static struct btf_kind_operations func_proto_ops = {
 	 * Hence, there is no btf_func_check_member().
 	 */
 	.check_member = btf_df_check_member,
+<<<<<<< HEAD
 	.check_kflag_member = btf_df_check_kflag_member,
+=======
+>>>>>>> 0a4cfb8da6d4 (bpf: btf: Add BTF_KIND_FUNC and BTF_KIND_FUNC_PROTO)
 	.log_details = btf_func_proto_log,
 	.seq_show = btf_df_seq_show,
 };
@@ -2279,17 +2359,23 @@ static s32 btf_func_check_meta(struct btf_verifier_env *env,
 		btf_verifier_log_type(env, t, "Invalid name");
 		return -EINVAL;
 	}
+<<<<<<< HEAD
 
+=======
+>>>>>>> 0a4cfb8da6d4 (bpf: btf: Add BTF_KIND_FUNC and BTF_KIND_FUNC_PROTO)
 	if (btf_type_vlen(t)) {
 		btf_verifier_log_type(env, t, "vlen != 0");
 		return -EINVAL;
 	}
+<<<<<<< HEAD
 
 	if (btf_type_kflag(t)) {
 		btf_verifier_log_type(env, t, "Invalid btf_info kind_flag");
 		return -EINVAL;
 	}
 
+=======
+>>>>>>> 0a4cfb8da6d4 (bpf: btf: Add BTF_KIND_FUNC and BTF_KIND_FUNC_PROTO)
 	btf_verifier_log_type(env, t, NULL);
 	return 0;
 }
@@ -2298,7 +2384,10 @@ static struct btf_kind_operations func_ops = {
 	.check_meta = btf_func_check_meta,
 	.resolve = btf_df_resolve,
 	.check_member = btf_df_check_member,
+<<<<<<< HEAD
 	.check_kflag_member = btf_df_check_kflag_member,
+=======
+>>>>>>> 0a4cfb8da6d4 (bpf: btf: Add BTF_KIND_FUNC and BTF_KIND_FUNC_PROTO)
 	.log_details = btf_ref_type_log,
 	.seq_show = btf_df_seq_show,
 };
@@ -2411,7 +2500,10 @@ static int btf_func_check(struct btf_verifier_env *env,
 	return 0;
 }
 
+<<<<<<< HEAD
 >>>>>>> 49f122c98900 (bpf: btf: fix struct/union/fwd types with kind_flag)
+=======
+>>>>>>> 0a4cfb8da6d4 (bpf: btf: Add BTF_KIND_FUNC and BTF_KIND_FUNC_PROTO)
 static const struct btf_kind_operations * const kind_ops[NR_BTF_KINDS] = {
 	[BTF_KIND_INT] = &int_ops,
 	[BTF_KIND_PTR] = &ptr_ops,
@@ -2424,6 +2516,8 @@ static const struct btf_kind_operations * const kind_ops[NR_BTF_KINDS] = {
 	[BTF_KIND_VOLATILE] = &modifier_ops,
 	[BTF_KIND_CONST] = &modifier_ops,
 	[BTF_KIND_RESTRICT] = &modifier_ops,
+	[BTF_KIND_FUNC] = &func_ops,
+	[BTF_KIND_FUNC_PROTO] = &func_proto_ops,
 };
 
 static s32 btf_check_meta(struct btf_verifier_env *env,
@@ -2495,30 +2589,6 @@ static int btf_check_all_metas(struct btf_verifier_env *env)
 	return 0;
 }
 
-static int btf_resolve(struct btf_verifier_env *env,
-		       const struct btf_type *t, u32 type_id)
-{
-	const struct resolve_vertex *v;
-	int err = 0;
-
-	env->resolve_mode = RESOLVE_TBD;
-	env_stack_push(env, t, type_id);
-	while (!err && (v = env_stack_peak(env))) {
-		env->log_type_id = v->type_id;
-		err = btf_type_ops(v->t)->resolve(env, v);
-	}
-
-	env->log_type_id = type_id;
-	if (err == -E2BIG)
-		btf_verifier_log_type(env, t,
-				      "Exceeded max resolving depth:%u",
-				      MAX_RESOLVE_DEPTH);
-	else if (err == -EEXIST)
-		btf_verifier_log_type(env, t, "Loop detected");
-
-	return err;
-}
-
 static bool btf_resolve_valid(struct btf_verifier_env *env,
 			      const struct btf_type *t,
 			      u32 type_id)
@@ -2552,6 +2622,40 @@ static bool btf_resolve_valid(struct btf_verifier_env *env,
 	return false;
 }
 
+static int btf_resolve(struct btf_verifier_env *env,
+		       const struct btf_type *t, u32 type_id)
+{
+	u32 save_log_type_id = env->log_type_id;
+	const struct resolve_vertex *v;
+	int err = 0;
+
+	env->resolve_mode = RESOLVE_TBD;
+	env_stack_push(env, t, type_id);
+
+	while (!err && (v = env_stack_peak(env))) {
+		env->log_type_id = v->type_id;
+		err = btf_type_ops(v->t)->resolve(env, v);
+	}
+
+	env->log_type_id = type_id;
+	if (err == -E2BIG) {
+		btf_verifier_log_type(env, t,
+				      "Exceeded max resolving depth:%u",
+				      MAX_RESOLVE_DEPTH);
+	} else if (err == -EEXIST) {
+		btf_verifier_log_type(env, t, "Loop detected");
+	}
+
+	/* Final sanity check */
+	if (!err && !btf_resolve_valid(env, t, type_id)) {
+		btf_verifier_log_type(env, t, "Invalid resolve state");
+		err = -EINVAL;
+	}
+
+	env->log_type_id = save_log_type_id;
+	return err;
+}
+
 static int btf_check_all_types(struct btf_verifier_env *env)
 {
 	struct btf *btf = env->btf;
@@ -2574,10 +2678,16 @@ static int btf_check_all_types(struct btf_verifier_env *env)
 				return err;
 		}
 
-		if (btf_type_needs_resolve(t) &&
-		    !btf_resolve_valid(env, t, type_id)) {
-			btf_verifier_log_type(env, t, "Invalid resolve state");
-			return -EINVAL;
+		if (btf_type_is_func_proto(t)) {
+			err = btf_func_proto_check(env, t);
+			if (err)
+				return err;
+		}
+
+		if (btf_type_is_func(t)) {
+			err = btf_func_check(env, t);
+			if (err)
+				return err;
 		}
 	}
 
