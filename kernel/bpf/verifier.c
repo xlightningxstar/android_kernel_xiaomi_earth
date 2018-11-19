@@ -31,10 +31,12 @@
  * reference remains at the end of the program, the verifier rejects it.
 >>>>>>> a5bc57e3c5e5 (bpf: Add helper to retrieve socket in BPF)
  */
+#include <uapi/linux/btf.h>
 #include <linux/kernel.h>
 #include <linux/types.h>
 #include <linux/slab.h>
 #include <linux/bpf.h>
+#include <linux/btf.h>
 #include <linux/bpf_verifier.h>
 #include <linux/filter.h>
 #include <net/netlink.h>
@@ -5501,6 +5503,7 @@ err_free:
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 /* The minimum supported BTF func info size */
 #define MIN_BPF_FUNCINFO_SIZE	8
@@ -5516,6 +5519,20 @@ static int check_btf_func(struct bpf_verifier_env *env,
 	struct bpf_prog *prog;
 	const struct btf *btf;
 	void __user *urecord;
+=======
+/* The minimum supported BTF func info size */
+#define MIN_BPF_FUNCINFO_SIZE	8
+#define MAX_FUNCINFO_REC_SIZE	252
+static int check_btf_func(struct bpf_prog *prog, struct bpf_verifier_env *env,
+			  union bpf_attr *attr, union bpf_attr __user *uattr)
+{
+	u32 i, nfuncs, urec_size, min_size, prev_offset;
+	u32 krec_size = sizeof(struct bpf_func_info);
+	struct bpf_func_info krecord = {};
+	const struct btf_type *type;
+	void __user *urecord;
+	struct btf *btf;
+>>>>>>> 42c91a8b0c96 (bpf: Introduce bpf_func_info)
 	int ret = 0;
 	nfuncs = attr->func_info_cnt;
 
@@ -5535,6 +5552,7 @@ static int check_btf_func(struct bpf_verifier_env *env,
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	prog = env->prog;
 	btf = prog->aux->btf;
 
@@ -5545,6 +5563,16 @@ static int check_btf_func(struct bpf_verifier_env *env,
 	if (!krecord)
 		return -ENOMEM;
 
+=======
+	btf = btf_get_by_fd(attr->prog_btf_fd);
+	if (IS_ERR(btf)) {
+		verbose(env, "unable to get btf from fd\n");
+		return PTR_ERR(btf);
+	}
+
+	urecord = u64_to_user_ptr(attr->func_info);
+	min_size = min_t(u32, krec_size, urec_size);
+>>>>>>> 42c91a8b0c96 (bpf: Introduce bpf_func_info)
 	for (i = 0; i < nfuncs; i++) {
 		ret = bpf_check_uarg_tail_zero(urecord, krec_size, urec_size);
 		if (ret) {
@@ -5556,16 +5584,26 @@ static int check_btf_func(struct bpf_verifier_env *env,
 				if (put_user(min_size, &uattr->func_info_rec_size))
 					ret = -EFAULT;
 			}
+<<<<<<< HEAD
 			goto err_free;
 		}
 
 		if (copy_from_user(&krecord[i], urecord, min_size)) {
 			ret = -EFAULT;
 			goto err_free;
+=======
+			goto free_btf;
+		}
+
+		if (copy_from_user(&krecord, urecord, min_size)) {
+			ret = -EFAULT;
+			goto free_btf;
+>>>>>>> 42c91a8b0c96 (bpf: Introduce bpf_func_info)
 		}
 
 		/* check insn_offset */
 		if (i == 0) {
+<<<<<<< HEAD
 			if (krecord[i].insn_offset) {
 				verbose(env,
 					"nonzero insn_offset %u for the first func info record",
@@ -5742,6 +5780,53 @@ static int check_btf_info(struct bpf_verifier_env *env,
 }
 
 >>>>>>> ba4944e74883 (bpf: Add bpf_line_info support)
+=======
+			if (krecord.insn_offset) {
+				verbose(env,
+					"nonzero insn_offset %u for the first func info record",
+					krecord.insn_offset);
+				ret = -EINVAL;
+				goto free_btf;
+			}
+		} else if (krecord.insn_offset <= prev_offset) {
+			verbose(env,
+				"same or smaller insn offset (%u) than previous func info record (%u)",
+				krecord.insn_offset, prev_offset);
+			ret = -EINVAL;
+			goto free_btf;
+		}
+
+		if (env->subprog_info[i].start != krecord.insn_offset) {
+			verbose(env, "func_info BTF section doesn't match subprog layout in BPF program\n");
+			ret = -EINVAL;
+			goto free_btf;
+		}
+
+		/* check type_id */
+		type = btf_type_by_id(btf, krecord.type_id);
+		if (!type || BTF_INFO_KIND(type->info) != BTF_KIND_FUNC) {
+			verbose(env, "invalid type id %d in func info",
+				krecord.type_id);
+			ret = -EINVAL;
+			goto free_btf;
+		}
+
+		if (i == 0)
+			prog->aux->type_id = krecord.type_id;
+		env->subprog_info[i].type_id = krecord.type_id;
+		prev_offset = krecord.insn_offset;
+		urecord += urec_size;
+	}
+
+	prog->aux->btf = btf;
+	return 0;
+
+free_btf:
+	btf_put(btf);
+	return ret;
+}
+
+>>>>>>> 42c91a8b0c96 (bpf: Introduce bpf_func_info)
 /* check %cur's range satisfies %old's */
 static bool range_within(struct bpf_reg_state *old,
 			 struct bpf_reg_state *cur)
@@ -7132,10 +7217,16 @@ static int jit_subprogs(struct bpf_verifier_env *env)
 		func[i]->aux->name[0] = 'F';
 		func[i]->aux->stack_depth = env->subprog_info[i].stack_depth;
 		func[i]->jit_requested = 1;
+<<<<<<< HEAD
 		func[i]->aux->linfo = prog->aux->linfo;
 		func[i]->aux->nr_linfo = prog->aux->nr_linfo;
 		func[i]->aux->jited_linfo = prog->aux->jited_linfo;
 		func[i]->aux->linfo_idx = env->subprog_info[i].linfo_idx;
+=======
+		/* the btf will be freed only at prog->aux */
+		func[i]->aux->btf = prog->aux->btf;
+		func[i]->aux->type_id = env->subprog_info[i].type_id;
+>>>>>>> 42c91a8b0c96 (bpf: Introduce bpf_func_info)
 		func[i] = bpf_int_jit_compile(func[i]);
 		if (!func[i]->jited) {
 			err = -ENOTSUPP;
@@ -7554,7 +7645,8 @@ static void free_states(struct bpf_verifier_env *env)
 	kfree(env->explored_states);
 }
 
-int bpf_check(struct bpf_prog **prog, union bpf_attr *attr)
+int bpf_check(struct bpf_prog **prog, union bpf_attr *attr,
+	      union bpf_attr __user *uattr)
 {
 	struct bpf_verifier_env *env;
 	struct bpf_verifier_log *log;
@@ -7630,12 +7722,19 @@ int bpf_check(struct bpf_prog **prog, union bpf_attr *attr)
 		goto skip_full_check;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	ret = check_btf_info(env, attr, uattr);
 	if (ret < 0)
 		goto skip_full_check;
 
 >>>>>>> ba4944e74883 (bpf: Add bpf_line_info support)
+=======
+	ret = check_btf_func(env->prog, env, attr, uattr);
+	if (ret < 0)
+		goto skip_full_check;
+
+>>>>>>> 42c91a8b0c96 (bpf: Introduce bpf_func_info)
 	ret = do_check(env);
 	if (env->cur_state) {
 		free_verifier_state(env->cur_state, true);

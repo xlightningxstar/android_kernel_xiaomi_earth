@@ -414,6 +414,7 @@ struct bpf_prog_aux {
 #endif
 	struct bpf_prog_offload *offload;
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	struct btf *btf;
 	struct bpf_func_info *func_info;
@@ -440,6 +441,10 @@ struct bpf_prog_aux {
 	 */
 	u32 linfo_idx;
 >>>>>>> ba4944e74883 (bpf: Add bpf_line_info support)
+=======
+	struct btf *btf;
+	u32 type_id; /* type id for this prog/func */
+>>>>>>> 42c91a8b0c96 (bpf: Introduce bpf_func_info)
 	union {
 		struct work_struct work;
 		struct rcu_head	rcu;
@@ -648,7 +653,13 @@ static inline void bpf_long_memcpy(void *dst, const void *src, u32 size)
 }
 
 /* verify correctness of eBPF program */
+<<<<<<< HEAD
 int bpf_check(struct bpf_prog **fp, union bpf_attr *attr);
+=======
+int bpf_check(struct bpf_prog **fp, union bpf_attr *attr,
+	      union bpf_attr __user *uattr);
+#ifndef CONFIG_BPF_JIT_ALWAYS_ON
+>>>>>>> 42c91a8b0c96 (bpf: Introduce bpf_func_info)
 void bpf_patch_call_args(struct bpf_insn *insn, u32 stack_depth);
 
 /* Map specifics */

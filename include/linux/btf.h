@@ -52,6 +52,7 @@ u32 btf_id(const struct btf *btf);
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 bool btf_member_is_reg_int(const struct btf *btf, const struct btf_type *s,
 			   const struct btf_member *m,
@@ -92,5 +93,9 @@ static inline const char *btf_name_by_offset(const struct btf *btf,
 >>>>>>> d1efffd3c35e (bpf: introduce bpf_spin_lock)
 =======
 >>>>>>> 0d66cc14e55b (bpf: fix a compilation error when CONFIG_BPF_SYSCALL is not defined)
+=======
+const struct btf_type *btf_type_by_id(const struct btf *btf, u32 type_id);
+const char *btf_name_by_offset(const struct btf *btf, u32 offset);
+>>>>>>> 42c91a8b0c96 (bpf: Introduce bpf_func_info)
 
 #endif
