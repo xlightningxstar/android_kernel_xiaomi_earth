@@ -5669,7 +5669,10 @@ static bool bpf_skb_is_valid_access(int off, int size, enum bpf_access_type type
 			return false;
 		break;
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> e1d1782bd526 (bpf: fix pointer offsets in context for 32 bit)
 	case bpf_ctx_range_ptr(struct __sk_buff, flow_keys):
 		if (size != sizeof(__u64))
 			return false;
@@ -5705,6 +5708,10 @@ static bool sk_filter_is_valid_access(int off, int size,
 	case bpf_ctx_range(struct __sk_buff, data):
 	case bpf_ctx_range(struct __sk_buff, data_meta):
 	case bpf_ctx_range(struct __sk_buff, data_end):
+<<<<<<< HEAD
+=======
+	case bpf_ctx_range_ptr(struct __sk_buff, flow_keys):
+>>>>>>> e1d1782bd526 (bpf: fix pointer offsets in context for 32 bit)
 	case bpf_ctx_range_till(struct __sk_buff, family, local_port):
 		return false;
 	}
@@ -5728,6 +5735,10 @@ static bool lwt_is_valid_access(int off, int size,
 {
 	switch (off) {
 	case bpf_ctx_range(struct __sk_buff, tc_classid):
+<<<<<<< HEAD
+=======
+	case bpf_ctx_range_ptr(struct __sk_buff, flow_keys):
+>>>>>>> e1d1782bd526 (bpf: fix pointer offsets in context for 32 bit)
 	case bpf_ctx_range_till(struct __sk_buff, family, local_port):
 	case bpf_ctx_range(struct __sk_buff, data_meta):
 		return false;
@@ -6185,6 +6196,8 @@ static bool sk_skb_is_valid_access(int off, int size,
 
 	switch (off) {
 	case bpf_ctx_range(struct __sk_buff, mark):
+	case bpf_ctx_range_ptr(struct __sk_buff, flow_keys):
+	case bpf_ctx_range(struct __sk_buff, tc_classid):
 		return false;
 	case bpf_ctx_range(struct __sk_buff, data):
 		info->reg_type = PTR_TO_PACKET;
@@ -6197,6 +6210,39 @@ static bool sk_skb_is_valid_access(int off, int size,
 	return bpf_skb_is_valid_access(off, size, type, prog, info);
 }
 
+<<<<<<< HEAD
+=======
+static bool flow_dissector_is_valid_access(int off, int size,
+					   enum bpf_access_type type,
+					   const struct bpf_prog *prog,
+					   struct bpf_insn_access_aux *info)
+{
+	if (type == BPF_WRITE) {
+		switch (off) {
+		case bpf_ctx_range_till(struct __sk_buff, cb[0], cb[4]):
+			break;
+		default:
+			return false;
+		}
+	}
+	switch (off) {
+	case bpf_ctx_range(struct __sk_buff, data):
+		info->reg_type = PTR_TO_PACKET;
+		break;
+	case bpf_ctx_range(struct __sk_buff, data_end):
+		info->reg_type = PTR_TO_PACKET_END;
+		break;
+	case bpf_ctx_range_ptr(struct __sk_buff, flow_keys):
+		info->reg_type = PTR_TO_FLOW_KEYS;
+		break;
+	case bpf_ctx_range(struct __sk_buff, tc_classid):
+	case bpf_ctx_range_till(struct __sk_buff, family, local_port):
+		return false;
+	}
+	return bpf_skb_is_valid_access(off, size, type, prog, info);
+}
+
+>>>>>>> e1d1782bd526 (bpf: fix pointer offsets in context for 32 bit)
 static bool sk_msg_is_valid_access(int off, int size,
 				   enum bpf_access_type type,
 				   const struct bpf_prog *prog,
