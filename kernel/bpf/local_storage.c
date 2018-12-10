@@ -1,11 +1,13 @@
 //SPDX-License-Identifier: GPL-2.0
 #include <linux/bpf-cgroup.h>
 #include <linux/bpf.h>
+#include <linux/btf.h>
 #include <linux/bug.h>
 #include <linux/filter.h>
 #include <linux/mm.h>
 #include <linux/rbtree.h>
 #include <linux/slab.h>
+#include <uapi/linux/btf.h>
 
 DEFINE_PER_CPU(void*, bpf_cgroup_storage);
 
@@ -256,15 +258,24 @@ static int cgroup_storage_delete_elem(struct bpf_map *map, void *key)
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> dadbcff5dd52 (bpf: add bpffs pretty print for cgroup local storage maps)
 static int cgroup_storage_check_btf(const struct bpf_map *map,
 				    const struct btf *btf,
 				    const struct btf_type *key_type,
 				    const struct btf_type *value_type)
 {
+<<<<<<< HEAD
 	struct btf_member *m;
 	u32 offset, size;
 
+=======
+	const struct btf_type *t;
+	struct btf_member *m;
+	u32 id, size;
+>>>>>>> dadbcff5dd52 (bpf: add bpffs pretty print for cgroup local storage maps)
 	/* Key is expected to be of struct bpf_cgroup_storage_key type,
 	 * which is:
 	 * struct bpf_cgroup_storage_key {
@@ -282,17 +293,37 @@ static int cgroup_storage_check_btf(const struct bpf_map *map,
 	 * The first field must be a 64 bit integer at 0 offset.
 	 */
 	m = (struct btf_member *)(key_type + 1);
+<<<<<<< HEAD
 	size = FIELD_SIZEOF(struct bpf_cgroup_storage_key, cgroup_inode_id);
 	if (!btf_member_is_reg_int(btf, key_type, m, 0, size))
+=======
+	if (m->offset)
+		return -EINVAL;
+	id = m->type;
+	t = btf_type_id_size(btf, &id, NULL);
+	size = FIELD_SIZEOF(struct bpf_cgroup_storage_key, cgroup_inode_id);
+	if (!t || !btf_type_is_reg_int(t, size))
+>>>>>>> dadbcff5dd52 (bpf: add bpffs pretty print for cgroup local storage maps)
 		return -EINVAL;
 	/*
 	 * The second field must be a 32 bit integer at 64 bit offset.
 	 */
 	m++;
+<<<<<<< HEAD
 	offset = offsetof(struct bpf_cgroup_storage_key, attach_type);
 	size = FIELD_SIZEOF(struct bpf_cgroup_storage_key, attach_type);
 
 	if (!btf_member_is_reg_int(btf, key_type, m, offset, size))
+=======
+	if (m->offset != offsetof(struct bpf_cgroup_storage_key, attach_type) *
+	    BITS_PER_BYTE)
+		return -EINVAL;
+	id = m->type;
+	t = btf_type_id_size(btf, &id, NULL);
+	size = FIELD_SIZEOF(struct bpf_cgroup_storage_key, attach_type);
+
+	if (!t || !btf_type_is_reg_int(t, size))
+>>>>>>> dadbcff5dd52 (bpf: add bpffs pretty print for cgroup local storage maps)
 		return -EINVAL;
 
 	return 0;
@@ -335,7 +366,10 @@ static void cgroup_storage_seq_show_elem(struct bpf_map *map, void *_key,
 	rcu_read_unlock();
 }
 
+<<<<<<< HEAD
 >>>>>>> 3a0fd967062e (bpf: enable cgroup local storage map pretty print with kind_flag)
+=======
+>>>>>>> dadbcff5dd52 (bpf: add bpffs pretty print for cgroup local storage maps)
 const struct bpf_map_ops cgroup_storage_map_ops = {
 	.map_alloc = cgroup_storage_map_alloc,
 	.map_free = cgroup_storage_map_free,
@@ -343,7 +377,8 @@ const struct bpf_map_ops cgroup_storage_map_ops = {
 	.map_lookup_elem = cgroup_storage_lookup_elem,
 	.map_update_elem = cgroup_storage_update_elem,
 	.map_delete_elem = cgroup_storage_delete_elem,
-	.map_check_btf = map_check_no_btf,
+	.map_check_btf = cgroup_storage_check_btf,
+	.map_seq_show_elem = cgroup_storage_seq_show_elem,
 };
 
 int bpf_cgroup_storage_assign(struct bpf_prog *prog, struct bpf_map *_map)

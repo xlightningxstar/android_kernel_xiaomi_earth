@@ -49,6 +49,7 @@ int btf_get_fd_by_id(u32 id);
 u32 btf_id(const struct btf *btf);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 bool btf_member_is_reg_int(const struct btf *btf, const struct btf_type *s,
 			   const struct btf_member *m,
@@ -60,6 +61,9 @@ bool btf_member_is_reg_int(const struct btf *btf, const struct btf_type *s,
 			   const struct btf_member *m,
 			   u32 expected_offset, u32 expected_size);
 >>>>>>> 3a0fd967062e (bpf: enable cgroup local storage map pretty print with kind_flag)
+=======
+bool btf_type_is_reg_int(const struct btf_type *t, u32 expected_size);
+>>>>>>> dadbcff5dd52 (bpf: add bpffs pretty print for cgroup local storage maps)
 
 #ifdef CONFIG_BPF_SYSCALL
 const struct btf_type *btf_type_by_id(const struct btf *btf, u32 type_id);

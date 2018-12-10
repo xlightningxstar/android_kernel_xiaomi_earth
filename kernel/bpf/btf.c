@@ -520,6 +520,7 @@ static bool btf_type_int_is_regular(const struct btf_type *t)
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 /*
 * Check that given struct member is a regular int with expected
@@ -536,10 +537,22 @@ bool btf_member_is_reg_int(const struct btf *btf, const struct btf_type *s,
 	id = m->type;
 	t = btf_type_id_size(btf, &id, NULL);
 	if (!t || !btf_type_is_int(t))
+=======
+/*
+ * Check that given type is a regular int and has the expected size.
+ */
+bool btf_type_is_reg_int(const struct btf_type *t, u32 expected_size)
+{
+	u8 nr_bits, nr_bytes;
+	u32 int_data;
+
+	if (!btf_type_is_int(t))
+>>>>>>> dadbcff5dd52 (bpf: add bpffs pretty print for cgroup local storage maps)
 		return false;
 
 	int_data = btf_type_int(t);
 	nr_bits = BTF_INT_BITS(int_data);
+<<<<<<< HEAD
 	if (btf_type_kflag(s)) {
 		u32 bitfield_size = BTF_MEMBER_BITFIELD_SIZE(m->offset);
 		u32 bit_offset = BTF_MEMBER_BIT_OFFSET(m->offset);
@@ -555,12 +568,21 @@ bool btf_member_is_reg_int(const struct btf *btf, const struct btf_type *s,
 	    BITS_ROUNDUP_BYTES(m->offset) != expected_offset ||
 	    BITS_PER_BYTE_MASKED(nr_bits) ||
 	    BITS_ROUNDUP_BYTES(nr_bits) != expected_size)
+=======
+	nr_bytes = BITS_ROUNDUP_BYTES(nr_bits);
+	if (BITS_PER_BYTE_MASKED(nr_bits) ||
+	    BTF_INT_OFFSET(int_data) ||
+	    nr_bytes != expected_size)
+>>>>>>> dadbcff5dd52 (bpf: add bpffs pretty print for cgroup local storage maps)
 		return false;
 
 	return true;
 }
 
+<<<<<<< HEAD
 >>>>>>> 3a0fd967062e (bpf: enable cgroup local storage map pretty print with kind_flag)
+=======
+>>>>>>> dadbcff5dd52 (bpf: add bpffs pretty print for cgroup local storage maps)
 __printf(2, 3) static void __btf_verifier_log(struct bpf_verifier_log *log,
 					      const char *fmt, ...)
 {
