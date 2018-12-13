@@ -53,6 +53,7 @@ u32 btf_id(const struct btf *btf);
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 bool btf_member_is_reg_int(const struct btf *btf, const struct btf_type *s,
 			   const struct btf_member *m,
@@ -74,6 +75,8 @@ bool btf_type_is_reg_int(const struct btf_type *t, u32 expected_size);
 =======
 bool btf_name_offset_valid(const struct btf *btf, u32 offset);
 >>>>>>> ba4944e74883 (bpf: Add bpf_line_info support)
+=======
+>>>>>>> ee1a80afdffc (bpf: Create a new btf_name_by_offset() for non type name use case)
 const struct btf_type *btf_type_by_id(const struct btf *btf, u32 type_id);
 const char *btf_name_by_offset(const struct btf *btf, u32 offset);
 #else
