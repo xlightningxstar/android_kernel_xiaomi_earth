@@ -7,6 +7,7 @@
 #include <linux/types.h>
 
 struct btf;
+struct btf_member;
 struct btf_type;
 union bpf_attr;
 
@@ -47,12 +48,18 @@ void btf_type_seq_show(const struct btf *btf, u32 type_id, void *obj,
 int btf_get_fd_by_id(u32 id);
 u32 btf_id(const struct btf *btf);
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 bool btf_member_is_reg_int(const struct btf *btf, const struct btf_type *s,
 			   const struct btf_member *m,
 			   u32 expected_offset, u32 expected_size);
 
 int btf_find_spin_lock(const struct btf *btf, const struct btf_type *t);
+=======
+bool btf_member_is_reg_int(const struct btf *btf, const struct btf_type *s,
+			   const struct btf_member *m,
+			   u32 expected_offset, u32 expected_size);
+>>>>>>> 3a0fd967062e (bpf: enable cgroup local storage map pretty print with kind_flag)
 
 #ifdef CONFIG_BPF_SYSCALL
 const struct btf_type *btf_type_by_id(const struct btf *btf, u32 type_id);
