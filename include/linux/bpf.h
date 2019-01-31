@@ -98,6 +98,39 @@ struct bpf_map {
 };
 
 struct bpf_offload_dev;
+<<<<<<< HEAD
+=======
+static inline bool map_value_has_spin_lock(const struct bpf_map *map)
+{
+	return map->spin_lock_off >= 0;
+}
+
+static inline void check_and_init_map_lock(struct bpf_map *map, void *dst)
+{
+	if (likely(!map_value_has_spin_lock(map)))
+		return;
+	*(struct bpf_spin_lock *)(dst + map->spin_lock_off) =
+		(struct bpf_spin_lock){};
+}
+
+/* copy everything but bpf_spin_lock */
+static inline void copy_map_value(struct bpf_map *map, void *dst, void *src)
+{
+	if (unlikely(map_value_has_spin_lock(map))) {
+		u32 off = map->spin_lock_off;
+		memcpy(dst, src, off);
+		memcpy(dst + off + sizeof(struct bpf_spin_lock),
+		       src + off + sizeof(struct bpf_spin_lock),
+		       map->value_size - off - sizeof(struct bpf_spin_lock));
+	} else {
+		memcpy(dst, src, map->value_size);
+	}
+}
+
+void copy_map_value_locked(struct bpf_map *map, void *dst, void *src,
+			   bool lock_src);
+
+>>>>>>> 08a19f6cd8d7 (bpf: introduce BPF_F_LOCK flag)
 struct bpf_offloaded_map;
 
 struct bpf_map_dev_ops {
