@@ -3124,6 +3124,7 @@ struct bpf_spin_lock {
 	__u32	val;
 };
 
+<<<<<<< HEAD
 struct bpf_sockopt {
 	__bpf_md_ptr(struct bpf_sock *, sk);
 	__bpf_md_ptr(void *, optval);
@@ -3135,4 +3136,6 @@ struct bpf_sockopt {
 };
 
 >>>>>>> 205939c05648 (bpf: implement getsockopt and setsockopt hooks)
+=======
+>>>>>>> d1efffd3c35e (bpf: introduce bpf_spin_lock)
 #endif /* _UAPI__LINUX_BPF_H__ */

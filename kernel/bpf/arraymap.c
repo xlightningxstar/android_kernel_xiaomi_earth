@@ -312,6 +312,7 @@ static int array_map_update_elem(struct bpf_map *map, void *key, void *value,
 		       value, map->value_size);
 <<<<<<< HEAD
 	else
+<<<<<<< HEAD
 		memcpy(array->value +
 		       array->elem_size * (index & array->index_mask),
 		       value, map->value_size);
@@ -326,6 +327,12 @@ static int array_map_update_elem(struct bpf_map *map, void *key, void *value,
 	}
 
 >>>>>>> 08a19f6cd8d7 (bpf: introduce BPF_F_LOCK flag)
+=======
+		copy_map_value(map,
+			       array->value +
+			       array->elem_size * (index & array->index_mask),
+			       value);
+>>>>>>> d1efffd3c35e (bpf: introduce bpf_spin_lock)
 	return 0;
 }
 

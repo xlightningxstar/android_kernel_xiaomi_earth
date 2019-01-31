@@ -464,7 +464,7 @@ int map_check_no_btf(const struct bpf_map *map,
 	return -ENOTSUPP;
 }
 
-static int map_check_btf(const struct bpf_map *map, const struct btf *btf,
+static int map_check_btf(struct bpf_map *map, const struct btf *btf,
 			 u32 btf_key_id, u32 btf_value_id)
 {
 	const struct btf_type *key_type, *value_type;
@@ -480,13 +480,20 @@ static int map_check_btf(const struct bpf_map *map, const struct btf *btf,
 		return -EINVAL;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> d1efffd3c35e (bpf: introduce bpf_spin_lock)
 	map->spin_lock_off = btf_find_spin_lock(btf, value_type);
 
 	if (map_value_has_spin_lock(map)) {
 		if (map->map_type != BPF_MAP_TYPE_HASH &&
+<<<<<<< HEAD
 		    map->map_type != BPF_MAP_TYPE_ARRAY &&
 		    map->map_type != BPF_MAP_TYPE_SK_STORAGE)
+=======
+		    map->map_type != BPF_MAP_TYPE_ARRAY)
+>>>>>>> d1efffd3c35e (bpf: introduce bpf_spin_lock)
 			return -ENOTSUPP;
 		if (map->spin_lock_off + sizeof(struct bpf_spin_lock) >
 		    map->value_size) {
@@ -497,7 +504,10 @@ static int map_check_btf(const struct bpf_map *map, const struct btf *btf,
 		}
 	}
 
+<<<<<<< HEAD
 >>>>>>> 5c7addaafc8a (bpf: Introduce bpf sk local storage)
+=======
+>>>>>>> d1efffd3c35e (bpf: introduce bpf_spin_lock)
 	if (map->ops->map_check_btf)
 		ret = map->ops->map_check_btf(map, key_type, value_type);
 
@@ -562,6 +572,8 @@ static int map_create(union bpf_attr *attr)
 		map->btf = btf;
 		map->btf_key_type_id = attr->btf_key_type_id;
 		map->btf_value_type_id = attr->btf_value_type_id;
+	} else {
+		map->spin_lock_off = -EINVAL;
 	}
 
 	err = security_bpf_map_alloc(map);
@@ -756,6 +768,7 @@ static int map_lookup_elem(union bpf_attr *attr)
 			ptr = map->ops->map_lookup_elem(map, key);
 <<<<<<< HEAD
 		if (ptr)
+<<<<<<< HEAD
 			memcpy(value, ptr, value_size);
 =======
 		if (ptr) {
@@ -768,6 +781,9 @@ static int map_lookup_elem(union bpf_attr *attr)
 			check_and_init_map_lock(map, value);
 		}
 >>>>>>> 08a19f6cd8d7 (bpf: introduce BPF_F_LOCK flag)
+=======
+			copy_map_value(map, value, ptr);
+>>>>>>> d1efffd3c35e (bpf: introduce bpf_spin_lock)
 		rcu_read_unlock();
 		err = ptr ? 0 : -ENOENT;
 	}

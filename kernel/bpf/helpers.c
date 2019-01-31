@@ -193,7 +193,10 @@ const struct bpf_func_proto bpf_get_current_comm_proto = {
 };
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> d1efffd3c35e (bpf: introduce bpf_spin_lock)
 #if defined(CONFIG_QUEUED_SPINLOCKS) || defined(CONFIG_BPF_ARCH_SPINLOCK)
 static inline void __bpf_spin_lock(struct bpf_spin_lock *lock)
 {
@@ -264,6 +267,7 @@ const struct bpf_func_proto bpf_spin_unlock_proto = {
 	.arg1_type	= ARG_PTR_TO_SPIN_LOCK,
 };
 
+<<<<<<< HEAD
 void copy_map_value_locked(struct bpf_map *map, void *dst, void *src,
 			   bool lock_src)
 {
@@ -280,6 +284,8 @@ void copy_map_value_locked(struct bpf_map *map, void *dst, void *src,
 }
 
 >>>>>>> 08a19f6cd8d7 (bpf: introduce BPF_F_LOCK flag)
+=======
+>>>>>>> d1efffd3c35e (bpf: introduce bpf_spin_lock)
 #ifdef CONFIG_CGROUPS
 BPF_CALL_0(bpf_get_current_cgroup_id)
 {
@@ -313,4 +319,5 @@ const struct bpf_func_proto bpf_get_local_storage_proto = {
 	.arg1_type	= ARG_CONST_MAP_PTR,
 	.arg2_type	= ARG_ANYTHING,
 };
+#endif
 #endif

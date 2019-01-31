@@ -78,14 +78,15 @@ struct bpf_map {
 	u32 value_size;
 	u32 max_entries;
 	u32 map_flags;
-	u32 pages;
+	int spin_lock_off; /* >=0 valid offset, <0 error */
 	u32 id;
 	int numa_node;
 	u32 btf_key_type_id;
 	u32 btf_value_type_id;
 	struct btf *btf;
+	u32 pages;
 	bool unpriv_array;
-	/* 55 bytes hole */
+	/* 51 bytes hole */
 
 	/* The 3rd and 4th cacheline with misc members to avoid false sharing
 	 * particularly with refcounting.
@@ -99,7 +100,10 @@ struct bpf_map {
 
 struct bpf_offload_dev;
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> d1efffd3c35e (bpf: introduce bpf_spin_lock)
 static inline bool map_value_has_spin_lock(const struct bpf_map *map)
 {
 	return map->spin_lock_off >= 0;
@@ -127,10 +131,13 @@ static inline void copy_map_value(struct bpf_map *map, void *dst, void *src)
 	}
 }
 
+<<<<<<< HEAD
 void copy_map_value_locked(struct bpf_map *map, void *dst, void *src,
 			   bool lock_src);
 
 >>>>>>> 08a19f6cd8d7 (bpf: introduce BPF_F_LOCK flag)
+=======
+>>>>>>> d1efffd3c35e (bpf: introduce bpf_spin_lock)
 struct bpf_offloaded_map;
 
 struct bpf_map_dev_ops {
@@ -208,6 +215,7 @@ enum bpf_arg_type {
 	ARG_PTR_TO_CTX,		/* pointer to context */
 	ARG_ANYTHING,		/* any (initialized) argument is ok */
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	ARG_PTR_TO_SPIN_LOCK,	/* pointer to bpf_spin_lock */
 	ARG_PTR_TO_SOCK_COMMON,	/* pointer to sock_common */
@@ -221,6 +229,10 @@ enum bpf_arg_type {
 >>>>>>> ede1d273c390 (bpf: Introduce ARG_PTR_TO_{INT,LONG} arg types)
 =======
 >>>>>>> e51e8ea81ed1 (SQUASH! bpf: Add a bpf_sock pointer to __sk_buff and a bpf_sk_fullsock helpe)
+=======
+	ARG_PTR_TO_SOCKET,	/* pointer to bpf_sock */
+	ARG_PTR_TO_SPIN_LOCK,	/* pointer to bpf_spin_lock */
+>>>>>>> d1efffd3c35e (bpf: introduce bpf_spin_lock)
 };
 
 /* type of values returned from helper functions */
@@ -916,6 +928,7 @@ extern const struct bpf_func_proto bpf_sock_map_update_proto;
 extern const struct bpf_func_proto bpf_sock_hash_update_proto;
 extern const struct bpf_func_proto bpf_get_current_cgroup_id_proto;
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 extern const struct bpf_func_proto bpf_spin_lock_proto;
@@ -925,6 +938,10 @@ extern const struct bpf_func_proto bpf_msg_redirect_map_proto;
 extern const struct bpf_func_proto bpf_sk_redirect_hash_proto;
 extern const struct bpf_func_proto bpf_sk_redirect_map_proto;
 >>>>>>> ce33a2d50837 (bpf, sockmap: convert to generic sk_msg interface)
+=======
+extern const struct bpf_func_proto bpf_spin_lock_proto;
+extern const struct bpf_func_proto bpf_spin_unlock_proto;
+>>>>>>> d1efffd3c35e (bpf: introduce bpf_spin_lock)
 extern const struct bpf_func_proto bpf_get_local_storage_proto;
 extern const struct bpf_func_proto bpf_tcp_sock_proto;
 
