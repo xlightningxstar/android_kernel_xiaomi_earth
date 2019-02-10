@@ -3685,7 +3685,11 @@ BPF_CALL_1(bpf_tcp_sock, struct sock *, sk)
 	return (unsigned long)NULL;
 }
 
+<<<<<<< HEAD
 const struct bpf_func_proto bpf_tcp_sock_proto = {
+=======
+static const struct bpf_func_proto bpf_tcp_sock_proto = {
+>>>>>>> 839ef3225e75 (bpf: Add struct bpf_tcp_sock and BPF_FUNC_tcp_sock)
 	.func		= bpf_tcp_sock,
 	.gpl_only	= false,
 	.ret_type	= RET_PTR_TO_TCP_SOCK_OR_NULL,
@@ -5172,15 +5176,21 @@ cg_skb_func_proto(enum bpf_func_id func_id, const struct bpf_prog *prog)
 =======
 	case BPF_FUNC_sk_fullsock:
 		return &bpf_sk_fullsock_proto;
+<<<<<<< HEAD
 	case BPF_FUNC_sk_storage_get:
 		return &bpf_sk_storage_get_proto;
 	case BPF_FUNC_sk_storage_delete:
 		return &bpf_sk_storage_delete_proto;
+=======
+>>>>>>> 839ef3225e75 (bpf: Add struct bpf_tcp_sock and BPF_FUNC_tcp_sock)
 #ifdef CONFIG_INET
 	case BPF_FUNC_tcp_sock:
 		return &bpf_tcp_sock_proto;
 #endif
+<<<<<<< HEAD
 >>>>>>> 5c7addaafc8a (bpf: Introduce bpf sk local storage)
+=======
+>>>>>>> 839ef3225e75 (bpf: Add struct bpf_tcp_sock and BPF_FUNC_tcp_sock)
 	default:
 		return sk_filter_func_proto(func_id, prog);
 	}
@@ -5280,7 +5290,10 @@ tc_cls_act_func_proto(enum bpf_func_id func_id, const struct bpf_prog *prog)
 		return &bpf_sk_release_proto;
 	case BPF_FUNC_tcp_sock:
 		return &bpf_tcp_sock_proto;
+<<<<<<< HEAD
 >>>>>>> 5c7addaafc8a (bpf: Introduce bpf sk local storage)
+=======
+>>>>>>> 839ef3225e75 (bpf: Add struct bpf_tcp_sock and BPF_FUNC_tcp_sock)
 	default:
 		return bpf_base_func_proto(func_id);
 	}
