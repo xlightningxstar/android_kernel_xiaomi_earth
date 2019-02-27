@@ -18,6 +18,8 @@ struct bpf_prog;
 struct bpf_sock_ops_kern;
 struct bpf_cgroup_storage;
 
+struct ctl_table;
+struct ctl_table_header;
 #ifdef CONFIG_CGROUP_BPF
 
 extern struct static_key_false cgroup_bpf_enabled_key;
@@ -156,6 +158,7 @@ int bpf_cgroup_storage_assign(struct bpf_prog *prog, struct bpf_map *map);
 void bpf_cgroup_storage_release(struct bpf_prog *prog, struct bpf_map *map);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 int __cgroup_bpf_run_filter_sysctl(struct ctl_table_header *head,
 				   struct ctl_table *table, int write,
@@ -165,6 +168,12 @@ int bpf_percpu_cgroup_storage_update(struct bpf_map *map, void *key,
 				     void *value, u64 flags);
 
 >>>>>>> 07d0a9df4f20 (bpf: introduce per-cpu cgroup local storage)
+=======
+int __cgroup_bpf_run_filter_sysctl(struct ctl_table_header *head,
+				   struct ctl_table *table, int write,
+				   enum bpf_attach_type type);
+
+>>>>>>> 13dd69b476da (BACKPORT: bpf: Sysctl hook)
 /* Wrappers for __cgroup_bpf_run_filter_skb() guarded by cgroup_bpf_enabled. */
 #define BPF_CGROUP_RUN_PROG_INET_INGRESS(sk, skb)			      \
 ({									      \
@@ -290,7 +299,10 @@ int cgroup_bpf_prog_detach(const union bpf_attr *attr,
 int cgroup_bpf_prog_query(const union bpf_attr *attr,
 			  union bpf_attr __user *uattr);
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 13dd69b476da (BACKPORT: bpf: Sysctl hook)
 
 #define BPF_CGROUP_RUN_PROG_SYSCTL(head, table, write)			       \
 ({									       \
@@ -301,6 +313,7 @@ int cgroup_bpf_prog_query(const union bpf_attr *attr,
 	__ret;								       \
 })
 
+<<<<<<< HEAD
 #define BPF_CGROUP_RUN_PROG_SETSOCKOPT(sock, level, optname, optval, optlen,   \
                        kernel_optval)                  \
 ({                                         \
@@ -333,6 +346,8 @@ int cgroup_bpf_prog_query(const union bpf_attr *attr,
 
 
 >>>>>>> 205939c05648 (bpf: implement getsockopt and setsockopt hooks)
+=======
+>>>>>>> 13dd69b476da (BACKPORT: bpf: Sysctl hook)
 #else
 
 struct bpf_prog;
@@ -439,6 +454,7 @@ static inline int bpf_percpu_cgroup_storage_update(struct bpf_map *map,
 #define BPF_CGROUP_RUN_PROG_SOCK_OPS(sock_ops) ({ 0; })
 #define BPF_CGROUP_RUN_PROG_DEVICE_CGROUP(type,major,minor,access) ({ 0; })
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 #define BPF_CGROUP_RUN_PROG_SYSCTL(head, table, write) ({ 0; })
 #define BPF_CGROUP_GETSOCKOPT_MAX_OPTLEN(optlen) ({ 0; })
@@ -451,6 +467,9 @@ static inline int bpf_percpu_cgroup_storage_update(struct bpf_map *map,
 >>>>>>> 205939c05648 (bpf: implement getsockopt and setsockopt hooks)
 
 #define for_each_cgroup_storage_type(stype) for (; false; )
+=======
+#define BPF_CGROUP_RUN_PROG_SYSCTL(head, table, write) ({ 0; })
+>>>>>>> 13dd69b476da (BACKPORT: bpf: Sysctl hook)
 
 #endif /* CONFIG_CGROUP_BPF */
 

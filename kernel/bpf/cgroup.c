@@ -11,7 +11,9 @@
 #include <linux/kernel.h>
 #include <linux/atomic.h>
 #include <linux/cgroup.h>
+#include <linux/filter.h>
 #include <linux/slab.h>
+#include <linux/sysctl.h>
 #include <linux/bpf.h>
 #include <linux/bpf-cgroup.h>
 #include <net/sock.h>
@@ -767,7 +769,10 @@ const struct bpf_verifier_ops cg_dev_verifier_ops = {
 	.is_valid_access	= cgroup_dev_is_valid_access,
 };
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 13dd69b476da (BACKPORT: bpf: Sysctl hook)
 
 
 /**
@@ -805,6 +810,7 @@ int __cgroup_bpf_run_filter_sysctl(struct ctl_table_header *head,
 }
 EXPORT_SYMBOL(__cgroup_bpf_run_filter_sysctl);
 
+<<<<<<< HEAD
 static bool __cgroup_bpf_prog_array_is_empty(struct cgroup *cgrp,
 					     enum bpf_attach_type attach_type)
 {
@@ -1061,6 +1067,8 @@ out:
 }
 EXPORT_SYMBOL(__cgroup_bpf_run_filter_getsockopt);
 
+=======
+>>>>>>> 13dd69b476da (BACKPORT: bpf: Sysctl hook)
 static const struct bpf_func_proto *
 sysctl_func_proto(enum bpf_func_id func_id, const struct bpf_prog *prog)
 {
@@ -1115,6 +1123,7 @@ const struct bpf_verifier_ops cg_sysctl_verifier_ops = {
 
 const struct bpf_prog_ops cg_sysctl_prog_ops = {
 };
+<<<<<<< HEAD
 
 static const struct bpf_func_proto *
 cg_sockopt_func_proto(enum bpf_func_id func_id, const struct bpf_prog *prog)
@@ -1257,3 +1266,5 @@ const struct bpf_prog_ops cg_sockopt_prog_ops = {
 >>>>>>> e44eaf4881cb (bpf: Don't return EINVAL from {get,set}sockopt when optlen > PAGE_SIZE)
 =======
 >>>>>>> 205939c05648 (bpf: implement getsockopt and setsockopt hooks)
+=======
+>>>>>>> 13dd69b476da (BACKPORT: bpf: Sysctl hook)

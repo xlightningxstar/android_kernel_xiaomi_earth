@@ -162,12 +162,15 @@ enum bpf_prog_type {
 =======
     BPF_PROG_TYPE_FLOW_DISSECTOR = 22,
 	BPF_PROG_TYPE_CGROUP_SYSCTL = 23,
+<<<<<<< HEAD
 	BPF_PROG_TYPE_RAW_TRACEPOINT_WRITABLE = 24,
 <<<<<<< HEAD
 	BPF_PROG_TYPE_CGROUP_SOCKOPT = 25,
 >>>>>>> 205939c05648 (bpf: implement getsockopt and setsockopt hooks)
 =======
 >>>>>>> 576f43b50573 (bpf: add writable context for raw tracepoints)
+=======
+>>>>>>> 13dd69b476da (BACKPORT: bpf: Sysctl hook)
 };
 
 enum bpf_attach_type {
@@ -188,6 +191,11 @@ enum bpf_attach_type {
 	BPF_CGROUP_UDP4_SENDMSG,
 	BPF_CGROUP_UDP6_SENDMSG,
 	BPF_LIRC_MODE2,
+<<<<<<< HEAD
+=======
+	BPF_FLOW_DISSECTOR = 17,
+	BPF_CGROUP_SYSCTL = 18,
+>>>>>>> 13dd69b476da (BACKPORT: bpf: Sysctl hook)
 	BPF_CGROUP_UDP4_RECVMSG = 19,
 	BPF_CGROUP_UDP6_RECVMSG = 20,
 	BPF_CGROUP_GETSOCKOPT = 21,
@@ -3150,13 +3158,17 @@ enum bpf_task_fd_type {
 };
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 13dd69b476da (BACKPORT: bpf: Sysctl hook)
 struct bpf_sysctl {
 	__u32	write;		/* Sysctl is being read (= 0) or written (= 1).
 				 * Allows 1,2,4-byte read, but no write.
 				 */
 };
 
+<<<<<<< HEAD
 struct bpf_func_info {
 	__u32	insn_offset;
 	__u32	type_id;
@@ -3195,4 +3207,6 @@ struct bpf_sockopt {
 >>>>>>> ba4944e74883 (bpf: Add bpf_line_info support)
 =======
 >>>>>>> 42c91a8b0c96 (bpf: Introduce bpf_func_info)
+=======
+>>>>>>> 13dd69b476da (BACKPORT: bpf: Sysctl hook)
 #endif /* _UAPI__LINUX_BPF_H__ */
