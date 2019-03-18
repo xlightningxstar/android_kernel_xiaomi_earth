@@ -209,8 +209,11 @@ enum bpf_arg_type {
 	ARG_PTR_TO_SOCK_COMMON,	/* pointer to sock_common */
 	ARG_PTR_TO_INT,		/* pointer to int */
 	ARG_PTR_TO_LONG,	/* pointer to long */
+<<<<<<< HEAD
 	ARG_PTR_TO_SOCKET,	/* pointer to bpf_sock (fullsock) */
 >>>>>>> 5c7addaafc8a (bpf: Introduce bpf sk local storage)
+=======
+>>>>>>> ede1d273c390 (bpf: Introduce ARG_PTR_TO_{INT,LONG} arg types)
 };
 
 /* type of values returned from helper functions */
