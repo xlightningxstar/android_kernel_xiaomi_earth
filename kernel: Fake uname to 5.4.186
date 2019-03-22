@@ -1,0 +1,23 @@
+kernel: Fake uname to 5.4.186
+
+Needed to boot Android 16 and above on 4.19 devices.
+#
+# It looks like you may be committing a cherry-pick.
+# If this is not correct, please run
+#	git update-ref -d CHERRY_PICK_HEAD
+# and try again.
+
+
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+#
+# Author:    Thomas Turner <thomas_turner@talktalk.net>
+# Date:      Fri May 16 21:00:30 2025 +0100
+#
+# On branch android-16
+# Your branch is ahead of 'origin/android-16' by 1 commit.
+#   (use "git push" to publish your local commits)
+#
+# You are currently cherry-picking commit 6c56d385f687.
+#
+
