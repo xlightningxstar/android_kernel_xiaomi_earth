@@ -106,6 +106,7 @@ int ns_get_path_cb(struct path *path, ns_get_path_helper_t *ns_get_cb,
 		     void *private_data)
 {
 <<<<<<< HEAD
+<<<<<<< HEAD
 	struct ns_common *ns;
 	void *ret;
 
@@ -127,6 +128,16 @@ again:
 		ret = __ns_get_path(path, ns);
 	} while (ret == -EAGAIN);
 >>>>>>> df24c81364db (nsfs: clean-up ns_get_path() signature to return int)
+=======
+	void *ret;
+
+	do {
+		struct ns_common *ns = ns_get_cb(private_data);
+		if (!ns)
+			return ERR_PTR(-ENOENT);
+		ret = __ns_get_path(path, ns);
+	} while (ret == ERR_PTR(-EAGAIN));
+>>>>>>> 4bb7ba141537 (nsfs: unobfuscate)
 	return ret;
 }
 
@@ -164,7 +175,7 @@ int open_related_ns(struct ns_common *ns,
 	if (fd < 0)
 		return fd;
 
-	while (1) {
+	do {
 		struct ns_common *relative;
 
 		relative = get_ns(ns);
@@ -175,10 +186,15 @@ int open_related_ns(struct ns_common *ns,
 
 		err = __ns_get_path(&path, relative);
 <<<<<<< HEAD
+<<<<<<< HEAD
 		if (IS_ERR(err) && PTR_ERR(err) == -EAGAIN)
 			continue;
 		break;
 	}
+=======
+	} while (err == ERR_PTR(-EAGAIN));
+
+>>>>>>> 4bb7ba141537 (nsfs: unobfuscate)
 	if (IS_ERR(err)) {
 =======
 	} while (err == -EAGAIN);
