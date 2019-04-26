@@ -479,6 +479,25 @@ static int map_check_btf(const struct bpf_map *map, const struct btf *btf,
 	if (!value_type || value_size != map->value_size)
 		return -EINVAL;
 
+<<<<<<< HEAD
+=======
+	map->spin_lock_off = btf_find_spin_lock(btf, value_type);
+
+	if (map_value_has_spin_lock(map)) {
+		if (map->map_type != BPF_MAP_TYPE_HASH &&
+		    map->map_type != BPF_MAP_TYPE_ARRAY &&
+		    map->map_type != BPF_MAP_TYPE_SK_STORAGE)
+			return -ENOTSUPP;
+		if (map->spin_lock_off + sizeof(struct bpf_spin_lock) >
+		    map->value_size) {
+			WARN_ONCE(1,
+				  "verifier bug spin_lock_off %d value_size %d\n",
+				  map->spin_lock_off, map->value_size);
+			return -EFAULT;
+		}
+	}
+
+>>>>>>> 5c7addaafc8a (bpf: Introduce bpf sk local storage)
 	if (map->ops->map_check_btf)
 		ret = map->ops->map_check_btf(map, key_type, value_type);
 
