@@ -158,8 +158,11 @@ enum bpf_prog_type {
     BPF_PROG_TYPE_FLOW_DISSECTOR = 22,
 	BPF_PROG_TYPE_CGROUP_SYSCTL = 23,
 	BPF_PROG_TYPE_RAW_TRACEPOINT_WRITABLE = 24,
+<<<<<<< HEAD
 	BPF_PROG_TYPE_CGROUP_SOCKOPT = 25,
 >>>>>>> 205939c05648 (bpf: implement getsockopt and setsockopt hooks)
+=======
+>>>>>>> 576f43b50573 (bpf: add writable context for raw tracepoints)
 };
 
 enum bpf_attach_type {
