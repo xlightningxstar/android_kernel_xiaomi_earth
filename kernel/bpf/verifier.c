@@ -2876,7 +2876,13 @@ static int check_map_func_compatibility(struct bpf_verifier_env *env,
 	 * for now.
 	 */
 	case BPF_MAP_TYPE_DEVMAP:
+<<<<<<< HEAD
 		if (func_id != BPF_FUNC_redirect_map)
+=======
+	case BPF_MAP_TYPE_DEVMAP_HASH:
+		if (func_id != BPF_FUNC_redirect_map &&
+		    func_id != BPF_FUNC_map_lookup_elem)
+>>>>>>> 4f32b2c8bb68 (BACKPORT: devmap: Allow map lookups from eBPF)
 			goto error;
 		break;
 	/* Restrict bpf side of cpumap and xskmap, open when use-cases
