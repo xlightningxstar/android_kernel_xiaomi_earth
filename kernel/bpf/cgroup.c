@@ -788,7 +788,11 @@ static int sockopt_alloc_buf(struct bpf_sockopt_kern *ctx, int max_optlen)
 	if (!ctx->optval)
 		return -ENOMEM;
 	ctx->optval_end = ctx->optval + max_optlen;
+<<<<<<< HEAD
 	return max_optlen;
+=======
+	return 0;
+>>>>>>> f72b1b2e2c6a (bpf: always allocate at least 16 bytes for setsockopt hook)
 }
 static void sockopt_free_buf(struct bpf_sockopt_kern *ctx)
 {
@@ -819,6 +823,7 @@ int __cgroup_bpf_run_filter_setsockopt(struct sock *sk, int *level,
 	 * TCP_CONGESTION(nv) to TCP_CONGESTION(cubic).
 	 */
 	max_optlen = max_t(int, 16, *optlen);
+<<<<<<< HEAD
 
 	max_optlen = sockopt_alloc_buf(&ctx, max_optlen);
 	if (max_optlen < 0)
@@ -827,6 +832,16 @@ int __cgroup_bpf_run_filter_setsockopt(struct sock *sk, int *level,
 	ctx.optlen = *optlen;
 
 	if (copy_from_user(ctx.optval, optval, min(*optlen, max_optlen)) != 0) {
+=======
+	ret = sockopt_alloc_buf(&ctx, max_optlen);
+
+	if (ret)
+		return ret;
+
+	ctx.optlen = *optlen;
+
+	if (copy_from_user(ctx.optval, optval, *optlen) != 0) {
+>>>>>>> f72b1b2e2c6a (bpf: always allocate at least 16 bytes for setsockopt hook)
 		ret = -EFAULT;
 		goto out;
 	}
@@ -885,6 +900,7 @@ int __cgroup_bpf_run_filter_getsockopt(struct sock *sk, int level,
 	if (!cgroup_bpf_enabled ||
 	    __cgroup_bpf_prog_array_is_empty(cgrp, BPF_CGROUP_GETSOCKOPT))
 		return retval;
+<<<<<<< HEAD
 
 	ctx.optlen = max_optlen;
 
@@ -892,6 +908,14 @@ int __cgroup_bpf_run_filter_getsockopt(struct sock *sk, int level,
 	if (max_optlen < 0)
 		return max_optlen;
 
+=======
+	ret = sockopt_alloc_buf(&ctx, max_optlen);
+	if (ret)
+		return ret;
+
+	ctx.optlen = max_optlen;
+
+>>>>>>> f72b1b2e2c6a (bpf: always allocate at least 16 bytes for setsockopt hook)
 	if (!retval) {
 		/* If kernel getsockopt finished successfully,
 		 * copy whatever was returned to the user back
