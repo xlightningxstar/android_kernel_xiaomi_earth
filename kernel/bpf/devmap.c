@@ -570,6 +570,7 @@ static int dev_map_delete_elem(struct bpf_map *map, void *key)
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 static int dev_map_hash_delete_elem(struct bpf_map *map, void *key)
 {
@@ -593,6 +594,8 @@ static int dev_map_hash_delete_elem(struct bpf_map *map, void *key)
 	return ret;
 }
 
+=======
+>>>>>>> f71b403440ae (kernel: bpf: devmap: Create __dev_map_alloc_node)
 static struct bpf_dtab_netdev *__dev_map_alloc_node(struct net *net,
 						    struct bpf_dtab *dtab,
 						    u32 ifindex,
@@ -617,13 +620,15 @@ static struct bpf_dtab_netdev *__dev_map_alloc_node(struct net *net,
 	return dev;
 }
 
+<<<<<<< HEAD
 >>>>>>> 71f6e2079e21 (BACKPORT: xdp: Add devmap_hash map type for looking up devices by hashed index)
+=======
+>>>>>>> f71b403440ae (kernel: bpf: devmap: Create __dev_map_alloc_node)
 static int dev_map_update_elem(struct bpf_map *map, void *key, void *value,
 				u64 map_flags)
 {
 	struct bpf_dtab *dtab = container_of(map, struct bpf_dtab, map);
 	struct net *net = current->nsproxy->net_ns;
-	gfp_t gfp = GFP_ATOMIC | __GFP_NOWARN;
 	struct bpf_dtab_netdev *dev, *old_dev;
 	u32 i = *(u32 *)key;
 	u32 ifindex = *(u32 *)value;
@@ -638,26 +643,9 @@ static int dev_map_update_elem(struct bpf_map *map, void *key, void *value,
 	if (!ifindex) {
 		dev = NULL;
 	} else {
-		dev = kmalloc_node(sizeof(*dev), gfp, map->numa_node);
-		if (!dev)
-			return -ENOMEM;
-
-		dev->bulkq = __alloc_percpu_gfp(sizeof(*dev->bulkq),
-						sizeof(void *), gfp);
-		if (!dev->bulkq) {
-			kfree(dev);
-			return -ENOMEM;
-		}
-
-		dev->dev = dev_get_by_index(net, ifindex);
-		if (!dev->dev) {
-			free_percpu(dev->bulkq);
-			kfree(dev);
-			return -EINVAL;
-		}
-
-		dev->bit = i;
-		dev->dtab = dtab;
+		dev = __dev_map_alloc_node(net, dtab, ifindex, i);
+		if (IS_ERR(dev))
+			return PTR_ERR(dev);
 	}
 
 	/* Use call_rcu() here to ensure rcu critical sections have completed
