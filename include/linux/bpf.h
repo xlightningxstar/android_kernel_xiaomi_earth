@@ -211,6 +211,7 @@ enum bpf_arg_type {
 =======
 	ARG_PTR_TO_SPIN_LOCK,	/* pointer to bpf_spin_lock */
 	ARG_PTR_TO_SOCK_COMMON,	/* pointer to sock_common */
+<<<<<<< HEAD
 	ARG_PTR_TO_INT,		/* pointer to int */
 	ARG_PTR_TO_LONG,	/* pointer to long */
 <<<<<<< HEAD
@@ -218,6 +219,8 @@ enum bpf_arg_type {
 >>>>>>> 5c7addaafc8a (bpf: Introduce bpf sk local storage)
 =======
 >>>>>>> ede1d273c390 (bpf: Introduce ARG_PTR_TO_{INT,LONG} arg types)
+=======
+>>>>>>> e51e8ea81ed1 (SQUASH! bpf: Add a bpf_sock pointer to __sk_buff and a bpf_sk_fullsock helpe)
 };
 
 /* type of values returned from helper functions */
@@ -292,6 +295,7 @@ enum bpf_reg_type {
 	PTR_TO_SOCKET_OR_NULL,	 /* reg points to struct bpf_sock or NULL */
 	PTR_TO_SOCK_COMMON,	 /* reg points to sock_common */
 	PTR_TO_SOCK_COMMON_OR_NULL, /* reg points to sock_common or NULL */
+<<<<<<< HEAD
 	PTR_TO_TCP_SOCK,	 /* reg points to struct tcp_sock */
 	PTR_TO_TCP_SOCK_OR_NULL, /* reg points to struct tcp_sock or NULL */
 <<<<<<< HEAD
@@ -299,6 +303,8 @@ enum bpf_reg_type {
 >>>>>>> 576f43b50573 (bpf: add writable context for raw tracepoints)
 =======
 >>>>>>> 839ef3225e75 (bpf: Add struct bpf_tcp_sock and BPF_FUNC_tcp_sock)
+=======
+>>>>>>> e51e8ea81ed1 (SQUASH! bpf: Add a bpf_sock pointer to __sk_buff and a bpf_sk_fullsock helpe)
 };
 
 /* The information passed from prog-specific *_is_valid_access

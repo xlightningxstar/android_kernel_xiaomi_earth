@@ -271,20 +271,31 @@ static bool type_is_pkt_pointer(enum bpf_reg_type type)
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 static bool type_is_sk_pointer(enum bpf_reg_type type)
 {
 	return type == PTR_TO_SOCKET ||
 		type == PTR_TO_SOCK_COMMON ||
 		type == PTR_TO_TCP_SOCK;
+=======
+static bool type_is_sk_pointer(enum bpf_reg_type type)
+{
+	return type == PTR_TO_SOCKET ||
+		type == PTR_TO_SOCK_COMMON;
+>>>>>>> e51e8ea81ed1 (SQUASH! bpf: Add a bpf_sock pointer to __sk_buff and a bpf_sk_fullsock helpe)
 }
 
 static bool reg_type_may_be_null(enum bpf_reg_type type)
 {
 	return type == PTR_TO_MAP_VALUE_OR_NULL ||
 	       type == PTR_TO_SOCKET_OR_NULL ||
+<<<<<<< HEAD
 	       type == PTR_TO_SOCK_COMMON_OR_NULL ||
 	       type == PTR_TO_TCP_SOCK_OR_NULL;
+=======
+	       type == PTR_TO_SOCK_COMMON_OR_NULL;
+>>>>>>> e51e8ea81ed1 (SQUASH! bpf: Add a bpf_sock pointer to __sk_buff and a bpf_sk_fullsock helpe)
 }
 
 static bool type_is_refcounted(enum bpf_reg_type type)
@@ -333,7 +344,10 @@ static bool is_acquire_function(enum bpf_func_id func_id)
 		func_id == BPF_FUNC_sk_lookup_udp;
 }
 
+<<<<<<< HEAD
 >>>>>>> 839ef3225e75 (bpf: Add struct bpf_tcp_sock and BPF_FUNC_tcp_sock)
+=======
+>>>>>>> e51e8ea81ed1 (SQUASH! bpf: Add a bpf_sock pointer to __sk_buff and a bpf_sk_fullsock helpe)
 /* string representation of 'enum bpf_reg_type' */
 static const char * const reg_type_str[] = {
 	[NOT_INIT]		= "?",
@@ -353,6 +367,7 @@ static const char * const reg_type_str[] = {
 	[PTR_TO_SOCKET_OR_NULL] = "sock_or_null",
 	[PTR_TO_SOCK_COMMON]	= "sock_common",
 	[PTR_TO_SOCK_COMMON_OR_NULL] = "sock_common_or_null",
+<<<<<<< HEAD
 	[PTR_TO_TCP_SOCK]	= "tcp_sock",
 	[PTR_TO_TCP_SOCK_OR_NULL] = "tcp_sock_or_null",
 <<<<<<< HEAD
@@ -360,6 +375,8 @@ static const char * const reg_type_str[] = {
 >>>>>>> 576f43b50573 (bpf: add writable context for raw tracepoints)
 =======
 >>>>>>> 839ef3225e75 (bpf: Add struct bpf_tcp_sock and BPF_FUNC_tcp_sock)
+=======
+>>>>>>> e51e8ea81ed1 (SQUASH! bpf: Add a bpf_sock pointer to __sk_buff and a bpf_sk_fullsock helpe)
 };
 
 static void print_liveness(struct bpf_verifier_env *env,
@@ -490,8 +507,43 @@ static int realloc_func_state(struct bpf_func_state *state, int size,
 	struct bpf_stack_state *new_stack;
 	int slot = size / BPF_REG_SIZE;
 
+<<<<<<< HEAD
 	if (size <= old_size || !size) {
 		if (copy_old)
+=======
+/* Acquire a pointer id from the env and update the state->refs to include
+ * this new pointer reference.
+ * On success, returns a valid pointer id to associate with the register
+ * On failure, returns a negative errno.
+ */
+static int acquire_reference_state(struct bpf_verifier_env *env, int insn_idx)
+{
+	struct bpf_func_state *state = cur_func(env);
+	int new_ofs = state->acquired_refs;
+	int id, err;
+	err = realloc_reference_state(state, state->acquired_refs + 1, true);
+	if (err)
+		return err;
+	id = ++env->id_gen;
+	state->refs[new_ofs].id = id;
+	state->refs[new_ofs].insn_idx = insn_idx;
+	return id;
+}
+
+/* release function corresponding to acquire_reference_state(). Idempotent. */
+static int release_reference_state(struct bpf_func_state *state, int ptr_id)
+{
+	int i, last_idx;
+
+	last_idx = state->acquired_refs - 1;
+	for (i = 0; i < state->acquired_refs; i++) {
+		if (state->refs[i].id == ptr_id) {
+			if (last_idx && i != last_idx)
+				memcpy(&state->refs[i], &state->refs[last_idx],
+				       sizeof(*state->refs));
+			memset(&state->refs[last_idx], 0, sizeof(*state->refs));
+			state->acquired_refs--;
+>>>>>>> e51e8ea81ed1 (SQUASH! bpf: Add a bpf_sock pointer to __sk_buff and a bpf_sk_fullsock helpe)
 			return 0;
 		state->allocated_stack = slot * BPF_REG_SIZE;
 		if (!size && old_size) {
@@ -500,6 +552,7 @@ static int realloc_func_state(struct bpf_func_state *state, int size,
 		}
 		return 0;
 	}
+<<<<<<< HEAD
 	new_stack = kmalloc_array(slot, sizeof(struct bpf_stack_state),
 				  GFP_KERNEL);
 	if (!new_stack)
@@ -514,6 +567,20 @@ static int realloc_func_state(struct bpf_func_state *state, int size,
 	state->allocated_stack = slot * BPF_REG_SIZE;
 	kfree(state->stack);
 	state->stack = new_stack;
+=======
+	return -EINVAL;
+}
+
+static int transfer_reference_state(struct bpf_func_state *dst,
+				    struct bpf_func_state *src)
+{
+	int err = realloc_reference_state(dst, src->acquired_refs, false);
+	if (err)
+		return err;
+	err = copy_reference_state(dst, src);
+	if (err)
+		return err;
+>>>>>>> e51e8ea81ed1 (SQUASH! bpf: Add a bpf_sock pointer to __sk_buff and a bpf_sk_fullsock helpe)
 	return 0;
 }
 
@@ -1056,9 +1123,12 @@ static bool is_spillable_regtype(enum bpf_reg_type type)
 	case PTR_TO_SOCKET_OR_NULL:
 	case PTR_TO_SOCK_COMMON:
 	case PTR_TO_SOCK_COMMON_OR_NULL:
+<<<<<<< HEAD
 	case PTR_TO_TCP_SOCK:
 	case PTR_TO_TCP_SOCK_OR_NULL:
 >>>>>>> 839ef3225e75 (bpf: Add struct bpf_tcp_sock and BPF_FUNC_tcp_sock)
+=======
+>>>>>>> e51e8ea81ed1 (SQUASH! bpf: Add a bpf_sock pointer to __sk_buff and a bpf_sk_fullsock helpe)
 		return true;
 	default:
 		return false;
@@ -1494,9 +1564,12 @@ static int check_sock_access(struct bpf_verifier_env *env, int insn_idx,
 	case PTR_TO_SOCKET:
 		valid = bpf_sock_is_valid_access(off, size, t, &info);
 		break;
+<<<<<<< HEAD
 	case PTR_TO_TCP_SOCK:
 		valid = bpf_tcp_sock_is_valid_access(off, size, t, &info);
 		break;
+=======
+>>>>>>> e51e8ea81ed1 (SQUASH! bpf: Add a bpf_sock pointer to __sk_buff and a bpf_sk_fullsock helpe)
 	default:
 		valid = false;
 	}
@@ -1522,6 +1595,11 @@ static bool __is_pointer_value(bool allow_ptr_leaks,
 	return reg->type != SCALAR_VALUE;
 }
 
+static struct bpf_reg_state *reg_state(struct bpf_verifier_env *env, int regno)
+{
+	return cur_regs(env) + regno;
+}
+
 static bool is_pointer_value(struct bpf_verifier_env *env, int regno)
 {
 	return __is_pointer_value(env->allow_ptr_leaks, cur_regs(env) + regno);
@@ -1532,6 +1610,15 @@ static bool is_ctx_reg(struct bpf_verifier_env *env, int regno)
 	const struct bpf_reg_state *reg = cur_regs(env) + regno;
 
 	return reg->type == PTR_TO_CTX;
+<<<<<<< HEAD
+=======
+}
+
+static bool is_sk_reg(struct bpf_verifier_env *env, int regno)
+{
+	const struct bpf_reg_state *reg = reg_state(env, regno);
+	return type_is_sk_pointer(reg->type);
+>>>>>>> e51e8ea81ed1 (SQUASH! bpf: Add a bpf_sock pointer to __sk_buff and a bpf_sk_fullsock helpe)
 }
 
 static bool is_pkt_reg(struct bpf_verifier_env *env, int regno)
@@ -1636,10 +1723,13 @@ static int check_ptr_alignment(struct bpf_verifier_env *env,
 	case PTR_TO_SOCK_COMMON:
 		pointer_desc = "sock_common ";
 		break;
+<<<<<<< HEAD
 	case PTR_TO_TCP_SOCK:
 		pointer_desc = "tcp_sock ";
 		break;
 >>>>>>> 839ef3225e75 (bpf: Add struct bpf_tcp_sock and BPF_FUNC_tcp_sock)
+=======
+>>>>>>> e51e8ea81ed1 (SQUASH! bpf: Add a bpf_sock pointer to __sk_buff and a bpf_sk_fullsock helpe)
 	default:
 		break;
 	}
@@ -1870,11 +1960,16 @@ static int check_mem_access(struct bpf_verifier_env *env, int insn_idx, u32 regn
 			 * PTR_TO_PACKET[_META,_END]. In the latter
 			 * case, we know the offset is zero.
 			 */
-			if (reg_type == SCALAR_VALUE)
+			if (reg_type == SCALAR_VALUE) {
 				mark_reg_unknown(env, regs, value_regno);
-			else
-				mark_reg_known_zero(env, regs,
-						    value_regno);
+			} else {
+				mark_reg_known_zero(env, regs, value_regno);
+				if (reg_type_may_be_null(reg_type))
+					regs[value_regno].id = ++env->id_gen;
+			}
+			regs[value_regno].id = 0;
+			regs[value_regno].off = 0;
+			regs[value_regno].range = 0;
 			regs[value_regno].type = reg_type;
 		}
 
@@ -1971,7 +2066,8 @@ static int check_xadd(struct bpf_verifier_env *env, int insn_idx, struct bpf_ins
 	}
 
 	if (is_ctx_reg(env, insn->dst_reg) ||
-	    is_pkt_reg(env, insn->dst_reg)) {
+	    is_pkt_reg(env, insn->dst_reg)  ||
+	    is_sk_reg(env, insn->dst_reg)) {
 		verbose(env, "BPF_XADD stores into R%d %s is not allowed\n",
 			insn->dst_reg, is_ctx_reg(env, insn->dst_reg) ?
 			"context" : "packet");
@@ -2258,7 +2354,10 @@ static int check_func_arg(struct bpf_verifier_env *env, u32 regno,
 		if (err < 0)
 			return err;
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> e51e8ea81ed1 (SQUASH! bpf: Add a bpf_sock pointer to __sk_buff and a bpf_sk_fullsock helpe)
 	} else if (arg_type == ARG_PTR_TO_SOCK_COMMON) {
 		expected_type = PTR_TO_SOCK_COMMON;
 		/* Any sk pointer can be ARG_PTR_TO_SOCK_COMMON */
@@ -2651,6 +2750,40 @@ static void clear_all_pkt_pointers(struct bpf_verifier_env *env)
 		__clear_all_pkt_pointers(env, vstate->frame[i]);
 }
 
+<<<<<<< HEAD
+=======
+static void release_reg_references(struct bpf_verifier_env *env,
+				   struct bpf_func_state *state, int id)
+{
+	struct bpf_reg_state *regs = state->regs, *reg;
+	int i;
+	for (i = 0; i < MAX_BPF_REG; i++)
+		if (regs[i].id == id)
+			mark_reg_unknown(env, regs, i);
+	bpf_for_each_spilled_reg(i, state, reg) {
+		if (!reg)
+			continue;
+		if (reg_is_refcounted(reg) && reg->id == id)
+			__mark_reg_unknown(reg);
+	}
+}
+
+/* The pointer with the specified id has released its reference to kernel
+ * resources. Identify all copies of the same pointer and clear the reference.
+ */
+static int release_reference(struct bpf_verifier_env *env,
+			     struct bpf_call_arg_meta *meta)
+{
+	struct bpf_verifier_state *vstate = env->cur_state;
+	int i;
+	for (i = 0; i <= vstate->curframe; i++)
+		release_reg_references(env, vstate->frame[i], meta->ptr_id);
+
+	return release_reference_state(cur_func(env), meta->ptr_id);
+}
+
+
+>>>>>>> e51e8ea81ed1 (SQUASH! bpf: Add a bpf_sock pointer to __sk_buff and a bpf_sk_fullsock helpe)
 static int check_func_call(struct bpf_verifier_env *env, struct bpf_insn *insn,
 			   int *insn_idx)
 {
@@ -2902,6 +3035,24 @@ static int check_helper_call(struct bpf_verifier_env *env, int func_id, int insn
 			return err;
 	}
 
+<<<<<<< HEAD
+=======
+	if (func_id == BPF_FUNC_tail_call) {
+		err = check_reference_leak(env);
+		if (err) {
+			verbose(env, "tail_call would lead to reference leak\n");
+			return err;
+		}
+	} else if (is_release_function(func_id)) {
+		err = release_reference(env, &meta);
+		if (err) {
+			verbose(env, "func %s#%d reference has not been acquired before\n",
+				func_id_name(func_id), func_id);
+			return err;
+		}
+	}
+
+>>>>>>> e51e8ea81ed1 (SQUASH! bpf: Add a bpf_sock pointer to __sk_buff and a bpf_sk_fullsock helpe)
 	regs = cur_regs(env);
 
 	/* check that flags argument in get_local_storage(map, flags) is 0,
@@ -2960,6 +3111,7 @@ static int check_helper_call(struct bpf_verifier_env *env, int func_id, int insn
 			regs[BPF_REG_0].id = ++env->id_gen;
 		}
 <<<<<<< HEAD
+<<<<<<< HEAD
 	} else if (fn->ret_type == RET_PTR_TO_SOCK_COMMON_OR_NULL) {
 		mark_reg_known_zero(env, regs, BPF_REG_0);
 		regs[BPF_REG_0].type = PTR_TO_SOCK_COMMON_OR_NULL;
@@ -2974,6 +3126,8 @@ static int check_helper_call(struct bpf_verifier_env *env, int func_id, int insn
 >>>>>>> f79bda81b79c (bpf: allow helpers to return PTR_TO_SOCK_COMMON)
 =======
 >>>>>>> 839ef3225e75 (bpf: Add struct bpf_tcp_sock and BPF_FUNC_tcp_sock)
+=======
+>>>>>>> e51e8ea81ed1 (SQUASH! bpf: Add a bpf_sock pointer to __sk_buff and a bpf_sk_fullsock helpe)
 	} else {
 		verbose(env, "unknown return type %d of func %s#%d\n",
 			fn->ret_type, func_id_name(func_id), func_id);
@@ -3378,7 +3532,7 @@ static int adjust_ptr_min_max_vals(struct bpf_verifier_env *env,
 	    umin_ptr = ptr_reg->umin_value, umax_ptr = ptr_reg->umax_value;
 	struct bpf_sanitize_info info = {};
 	u8 opcode = BPF_OP(insn->code);
-	u32 dst = insn->dst_reg;
+	u32 dst = insn->dst_reg, src = insn->src_reg;
 	int ret;
 
 	dst_reg = &regs[dst];
@@ -3400,10 +3554,12 @@ static int adjust_ptr_min_max_vals(struct bpf_verifier_env *env,
 		return -EACCES;
 	}
 
-	if (ptr_reg->type == PTR_TO_MAP_VALUE_OR_NULL) {
-		verbose(env, "R%d pointer arithmetic on PTR_TO_MAP_VALUE_OR_NULL prohibited, null-check it first\n",
-			dst);
+	switch (ptr_reg->type) {
+	case PTR_TO_MAP_VALUE_OR_NULL:
+		verbose(env, "R%d pointer arithmetic on %s prohibited, null-check it first\n",
+			dst, reg_type_str[ptr_reg->type]);
 		return -EACCES;
+<<<<<<< HEAD
 <<<<<<< HEAD
 	}
 	if (ptr_reg->type == CONST_PTR_TO_MAP) {
@@ -3415,18 +3571,34 @@ static int adjust_ptr_min_max_vals(struct bpf_verifier_env *env,
 		verbose(env, "R%d pointer arithmetic on PTR_TO_PACKET_END prohibited\n",
 			dst);
 =======
+=======
+>>>>>>> e51e8ea81ed1 (SQUASH! bpf: Add a bpf_sock pointer to __sk_buff and a bpf_sk_fullsock helpe)
 	case CONST_PTR_TO_MAP:
 	case PTR_TO_PACKET_END:
 	case PTR_TO_SOCKET:
 	case PTR_TO_SOCKET_OR_NULL:
 	case PTR_TO_SOCK_COMMON:
 	case PTR_TO_SOCK_COMMON_OR_NULL:
+<<<<<<< HEAD
 	case PTR_TO_TCP_SOCK:
 	case PTR_TO_TCP_SOCK_OR_NULL:
 		verbose(env, "R%d pointer arithmetic on %s prohibited\n",
 			dst, reg_type_str[ptr_reg->type]);
 >>>>>>> 839ef3225e75 (bpf: Add struct bpf_tcp_sock and BPF_FUNC_tcp_sock)
+=======
+		verbose(env, "R%d pointer arithmetic on %s prohibited\n",
+			dst, reg_type_str[ptr_reg->type]);
+>>>>>>> e51e8ea81ed1 (SQUASH! bpf: Add a bpf_sock pointer to __sk_buff and a bpf_sk_fullsock helpe)
 		return -EACCES;
+	case PTR_TO_MAP_VALUE:
+		if (!env->allow_ptr_leaks && !known && (smin_val < 0) != (smax_val < 0)) {
+			verbose(env, "R%d has unknown scalar with mixed signed bounds, pointer arithmetic with it prohibited for !root\n",
+				off_reg == dst_reg ? dst : src);
+			return -EACCES;
+		}
+		/* fall-through */
+	default:
+		break;
 	}
 
 	/* In case of 'scalar += pointer', dst_reg inherits pointer type and id.
@@ -4506,8 +4678,11 @@ static void mark_map_reg(struct bpf_reg_state *regs, u32 regno, u32 id,
 			reg->type = PTR_TO_SOCKET;
 		} else if (reg->type == PTR_TO_SOCK_COMMON_OR_NULL) {
 			reg->type = PTR_TO_SOCK_COMMON;
+<<<<<<< HEAD
 		} else if (reg->type == PTR_TO_TCP_SOCK_OR_NULL) {
 			reg->type = PTR_TO_TCP_SOCK;
+=======
+>>>>>>> e51e8ea81ed1 (SQUASH! bpf: Add a bpf_sock pointer to __sk_buff and a bpf_sk_fullsock helpe)
 		}
 
 		if (is_null || !(reg_is_refcounted(reg) ||
@@ -4538,6 +4713,12 @@ static void mark_map_regs(struct bpf_verifier_state *vstate, u32 regno,
 	u32 id = regs[regno].id;
 	int i, j;
 
+<<<<<<< HEAD
+=======
+	if (reg_is_refcounted_or_null(&regs[regno]) && is_null)
+		release_reference_state(state, id);
+
+>>>>>>> e51e8ea81ed1 (SQUASH! bpf: Add a bpf_sock pointer to __sk_buff and a bpf_sk_fullsock helpe)
 	for (i = 0; i < MAX_BPF_REG; i++)
 		mark_map_reg(regs, i, id, is_null);
 
@@ -5315,15 +5496,21 @@ static bool regsafe(struct bpf_verifier_env *env, struct bpf_reg_state *rold,
 	case CONST_PTR_TO_MAP:
 	case PTR_TO_PACKET_END:
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> e51e8ea81ed1 (SQUASH! bpf: Add a bpf_sock pointer to __sk_buff and a bpf_sk_fullsock helpe)
 	case PTR_TO_FLOW_KEYS:
 	case PTR_TO_SOCKET:
 	case PTR_TO_SOCKET_OR_NULL:
 	case PTR_TO_SOCK_COMMON:
 	case PTR_TO_SOCK_COMMON_OR_NULL:
+<<<<<<< HEAD
 	case PTR_TO_TCP_SOCK:
 	case PTR_TO_TCP_SOCK_OR_NULL:
 >>>>>>> 839ef3225e75 (bpf: Add struct bpf_tcp_sock and BPF_FUNC_tcp_sock)
+=======
+>>>>>>> e51e8ea81ed1 (SQUASH! bpf: Add a bpf_sock pointer to __sk_buff and a bpf_sk_fullsock helpe)
 		/* Only valid matches are exact, which memcmp() above
 		 * would have accepted
 		 */
@@ -5612,8 +5799,11 @@ static bool reg_type_mismatch_ok(enum bpf_reg_type type)
 	case PTR_TO_SOCKET_OR_NULL:
 	case PTR_TO_SOCK_COMMON:
 	case PTR_TO_SOCK_COMMON_OR_NULL:
+<<<<<<< HEAD
 	case PTR_TO_TCP_SOCK:
 	case PTR_TO_TCP_SOCK_OR_NULL:
+=======
+>>>>>>> e51e8ea81ed1 (SQUASH! bpf: Add a bpf_sock pointer to __sk_buff and a bpf_sk_fullsock helpe)
 		return false;
 	default:
 		return true;

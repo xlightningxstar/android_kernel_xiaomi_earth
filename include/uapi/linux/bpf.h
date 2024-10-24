@@ -2189,6 +2189,7 @@ union bpf_attr {
  *		0 on success, or a negative error in case of failure.
  *
 <<<<<<< HEAD
+<<<<<<< HEAD
  * u64 bpf_ktime_get_boot_ns(void)
  * 	Description
  * 		Return the time elapsed since system boot, in nanoseconds.
@@ -2197,6 +2198,8 @@ union bpf_attr {
  * 	Return
  * 		Current *ktime*.
 =======
+=======
+>>>>>>> e51e8ea81ed1 (SQUASH! bpf: Add a bpf_sock pointer to __sk_buff and a bpf_sk_fullsock helpe)
  * int bpf_xdp_adjust_meta(xdp_md, delta)
  *     Adjust the xdp_md.data_meta by delta
  *     @xdp_md: pointer to xdp_md
@@ -2210,6 +2213,7 @@ union bpf_attr {
  *	Return
  *		A **struct bpf_sock** pointer on success, or NULL in
  *		case of failure.
+<<<<<<< HEAD
  *
  * struct bpf_sock *bpf_sk_lookup_tcp(void *ctx, struct bpf_sock_tuple *tuple, u32 tuple_size, u32 netns, u64 flags)
  *	Description
@@ -2343,6 +2347,8 @@ union bpf_attr {
 >>>>>>> 839ef3225e75 (bpf: Add struct bpf_tcp_sock and BPF_FUNC_tcp_sock)
 =======
 >>>>>>> a5bc57e3c5e5 (bpf: Add helper to retrieve socket in BPF)
+=======
+>>>>>>> e51e8ea81ed1 (SQUASH! bpf: Add a bpf_sock pointer to __sk_buff and a bpf_sk_fullsock helpe)
  */
 #define __BPF_FUNC_MAPPER(FN)		\
 	FN(unspec),			\
@@ -2580,6 +2586,7 @@ struct __sk_buff {
 	/* ... here. */
 
 	__u32 data_meta;
+	__bpf_md_ptr(struct bpf_sock *, sk);
 };
 
 struct bpf_tunnel_key {
