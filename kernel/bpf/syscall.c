@@ -1768,6 +1768,9 @@ static int bpf_prog_attach(const union bpf_attr *attr)
 	case BPF_SK_SKB_STREAM_VERDICT:
 		ret = sock_map_get_from_fd(attr, prog);
 		break;
+	case BPF_FLOW_DISSECTOR:
+		ptype = BPF_PROG_TYPE_FLOW_DISSECTOR;
+		break;
 	case BPF_LIRC_MODE2:
 		ptype = BPF_PROG_TYPE_LIRC_MODE2;
 	case BPF_CGROUP_SYSCTL:
@@ -1851,11 +1854,16 @@ static int bpf_prog_detach(const union bpf_attr *attr)
 	case BPF_SK_SKB_STREAM_VERDICT:
 <<<<<<< HEAD
 		return sockmap_get_from_fd(attr, BPF_PROG_TYPE_SK_SKB, NULL);
+<<<<<<< HEAD
 =======
 		return sock_map_get_from_fd(attr, NULL);
 	case BPF_FLOW_DISSECTOR:
 		return skb_flow_dissector_bpf_prog_detach(attr);
 >>>>>>> ce33a2d50837 (bpf, sockmap: convert to generic sk_msg interface)
+=======
+	case BPF_FLOW_DISSECTOR:
+		return skb_flow_dissector_bpf_prog_detach(attr);
+>>>>>>> 092bcdd27f36 (BACKPORT: flow_dissector: implements flow dissector BPF hook)
 	case BPF_LIRC_MODE2:
 		return lirc_prog_detach(attr);
 <<<<<<< HEAD

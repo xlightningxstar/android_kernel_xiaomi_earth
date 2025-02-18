@@ -304,6 +304,7 @@ enum bpf_reg_type {
 	PTR_TO_PACKET,		 /* reg points to skb->data */
 	PTR_TO_PACKET_END,	 /* skb->data + headlen */
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	PTR_TO_FLOW_KEYS,	 /* reg points to bpf_flow_keys */
 	PTR_TO_SOCKET,		 /* reg points to struct bpf_sock */
@@ -320,6 +321,9 @@ enum bpf_reg_type {
 >>>>>>> 839ef3225e75 (bpf: Add struct bpf_tcp_sock and BPF_FUNC_tcp_sock)
 =======
 >>>>>>> e51e8ea81ed1 (SQUASH! bpf: Add a bpf_sock pointer to __sk_buff and a bpf_sk_fullsock helpe)
+=======
+	PTR_TO_FLOW_KEYS,	 /* reg points to bpf_flow_keys */
+>>>>>>> 092bcdd27f36 (BACKPORT: flow_dissector: implements flow dissector BPF hook)
 };
 
 /* The information passed from prog-specific *_is_valid_access

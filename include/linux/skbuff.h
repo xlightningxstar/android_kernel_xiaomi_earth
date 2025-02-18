@@ -244,11 +244,16 @@ struct pipe_inode_info;
 struct iov_iter;
 struct napi_struct;
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 struct bpf_prog;
 union bpf_attr;
 struct skb_ext;
 >>>>>>> 798df6a45d87 (sk_buff: add skb extension infrastructure)
+=======
+struct bpf_prog;
+union bpf_attr;
+>>>>>>> 092bcdd27f36 (BACKPORT: flow_dissector: implements flow dissector BPF hook)
 
 #if defined(CONFIG_NF_CONNTRACK) || defined(CONFIG_NF_CONNTRACK_MODULE)
 struct nf_conntrack {
@@ -1205,6 +1210,10 @@ static inline __be32 skb_flow_get_ports(const struct sk_buff *skb,
 void skb_flow_dissector_init(struct flow_dissector *flow_dissector,
 			     const struct flow_dissector_key *key,
 			     unsigned int key_count);
+
+int skb_flow_dissector_bpf_prog_attach(const union bpf_attr *attr,
+				       struct bpf_prog *prog);
+int skb_flow_dissector_bpf_prog_detach(const union bpf_attr *attr);
 
 bool __skb_flow_dissect(const struct sk_buff *skb,
 			struct flow_dissector *flow_dissector,

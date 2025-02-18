@@ -431,6 +431,7 @@ static const char * const reg_type_str[] = {
 	[PTR_TO_PACKET_META]	= "pkt_meta",
 	[PTR_TO_PACKET_END]	= "pkt_end",
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	[PTR_TO_FLOW_KEYS]	= "flow_keys",
 	[PTR_TO_SOCKET]		= "sock",
@@ -447,6 +448,9 @@ static const char * const reg_type_str[] = {
 >>>>>>> 839ef3225e75 (bpf: Add struct bpf_tcp_sock and BPF_FUNC_tcp_sock)
 =======
 >>>>>>> e51e8ea81ed1 (SQUASH! bpf: Add a bpf_sock pointer to __sk_buff and a bpf_sk_fullsock helpe)
+=======
+	[PTR_TO_FLOW_KEYS]	= "flow_keys",
+>>>>>>> 092bcdd27f36 (BACKPORT: flow_dissector: implements flow dissector BPF hook)
 };
 
 static void print_liveness(struct bpf_verifier_env *env,
@@ -1304,6 +1308,7 @@ static bool is_spillable_regtype(enum bpf_reg_type type)
 	case PTR_TO_PACKET:
 	case PTR_TO_PACKET_META:
 	case PTR_TO_PACKET_END:
+	case PTR_TO_FLOW_KEYS:
 	case CONST_PTR_TO_MAP:
 <<<<<<< HEAD
 =======
@@ -1646,6 +1651,7 @@ static bool may_access_direct_pkt_data(struct bpf_verifier_env *env,
 	case BPF_PROG_TYPE_XDP:
 	case BPF_PROG_TYPE_LWT_XMIT:
 	case BPF_PROG_TYPE_SK_SKB:
+	case BPF_PROG_TYPE_FLOW_DISSECTOR:
 	case BPF_PROG_TYPE_SK_MSG:
 		if (meta)
 			return meta->pkt_access;
@@ -1735,7 +1741,10 @@ static int check_ctx_access(struct bpf_verifier_env *env, int insn_idx, int off,
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 092bcdd27f36 (BACKPORT: flow_dissector: implements flow dissector BPF hook)
 static int check_flow_keys_access(struct bpf_verifier_env *env, int off,
 				  int size)
 {
@@ -1746,6 +1755,7 @@ static int check_flow_keys_access(struct bpf_verifier_env *env, int off,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int check_sock_access(struct bpf_verifier_env *env, int insn_idx,
 			     u32 regno, int off, int size,
 			     enum bpf_access_type t)
@@ -1788,6 +1798,8 @@ static int check_sock_access(struct bpf_verifier_env *env, int insn_idx,
 }
 
 >>>>>>> 839ef3225e75 (bpf: Add struct bpf_tcp_sock and BPF_FUNC_tcp_sock)
+=======
+>>>>>>> 092bcdd27f36 (BACKPORT: flow_dissector: implements flow dissector BPF hook)
 static bool __is_pointer_value(bool allow_ptr_leaks,
 			       const struct bpf_reg_state *reg)
 {
@@ -1908,6 +1920,9 @@ static int check_ptr_alignment(struct bpf_verifier_env *env,
 		 * right in front, treat it the very same way.
 		 */
 		return check_pkt_ptr_alignment(env, reg, off, size, strict);
+	case PTR_TO_FLOW_KEYS:
+		pointer_desc = "flow keys ";
+		break;
 	case PTR_TO_MAP_VALUE:
 		pointer_desc = "value ";
 		break;
@@ -2212,13 +2227,17 @@ static int check_mem_access(struct bpf_verifier_env *env, int insn_idx, u32 regn
 		if (!err && t == BPF_READ && value_regno >= 0)
 			mark_reg_unknown(env, regs, value_regno);
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 092bcdd27f36 (BACKPORT: flow_dissector: implements flow dissector BPF hook)
 	} else if (reg->type == PTR_TO_FLOW_KEYS) {
 		if (t == BPF_WRITE && value_regno >= 0 &&
 		    is_pointer_value(env, value_regno)) {
 			return -EACCES;
 		}
 		err = check_flow_keys_access(env, off, size);
+<<<<<<< HEAD
 	} else if (type_is_sk_pointer(reg->type)) {
 		if (t == BPF_WRITE) {
 			verbose(env, "R%d cannot write into %s\n",
@@ -2233,6 +2252,8 @@ static int check_mem_access(struct bpf_verifier_env *env, int insn_idx, u32 regn
 		if (!err && t == BPF_READ && value_regno >= 0)
 			mark_reg_unknown(env, regs, value_regno);
 >>>>>>> 576f43b50573 (bpf: add writable context for raw tracepoints)
+=======
+>>>>>>> 092bcdd27f36 (BACKPORT: flow_dissector: implements flow dissector BPF hook)
 	} else {
 		verbose(env, "R%d invalid mem access '%s'\n", regno,
 			reg_type_str[reg->type]);
@@ -2456,6 +2477,8 @@ static int check_helper_mem_access(struct bpf_verifier_env *env, int regno,
 	case PTR_TO_PACKET_META:
 		return check_packet_access(env, regno, reg->off, access_size,
 					   zero_size_allowed);
+	case PTR_TO_FLOW_KEYS:
+		return check_flow_keys_access(env, reg->off, access_size);
 	case PTR_TO_MAP_VALUE:
 		return check_map_access(env, regno, reg->off, access_size,
 					zero_size_allowed);
@@ -6258,6 +6281,7 @@ static bool regsafe(struct bpf_verifier_env *env, struct bpf_reg_state *rold,
 	case PTR_TO_PACKET_END:
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> e51e8ea81ed1 (SQUASH! bpf: Add a bpf_sock pointer to __sk_buff and a bpf_sk_fullsock helpe)
@@ -6272,6 +6296,9 @@ static bool regsafe(struct bpf_verifier_env *env, struct bpf_reg_state *rold,
 >>>>>>> 839ef3225e75 (bpf: Add struct bpf_tcp_sock and BPF_FUNC_tcp_sock)
 =======
 >>>>>>> e51e8ea81ed1 (SQUASH! bpf: Add a bpf_sock pointer to __sk_buff and a bpf_sk_fullsock helpe)
+=======
+	case PTR_TO_FLOW_KEYS:
+>>>>>>> 092bcdd27f36 (BACKPORT: flow_dissector: implements flow dissector BPF hook)
 		/* Only valid matches are exact, which memcmp() above
 		 * would have accepted
 		 */

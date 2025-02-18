@@ -159,6 +159,7 @@ enum bpf_prog_type {
 	BPF_PROG_TYPE_LIRC_MODE2,
 	BPF_PROG_TYPE_SK_REUSEPORT,
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
     BPF_PROG_TYPE_FLOW_DISSECTOR = 22,
 	BPF_PROG_TYPE_CGROUP_SYSCTL = 23,
@@ -171,6 +172,9 @@ enum bpf_prog_type {
 >>>>>>> 576f43b50573 (bpf: add writable context for raw tracepoints)
 =======
 >>>>>>> 13dd69b476da (BACKPORT: bpf: Sysctl hook)
+=======
+    BPF_PROG_TYPE_FLOW_DISSECTOR = 22,
+>>>>>>> 092bcdd27f36 (BACKPORT: flow_dissector: implements flow dissector BPF hook)
 };
 
 enum bpf_attach_type {
@@ -192,10 +196,14 @@ enum bpf_attach_type {
 	BPF_CGROUP_UDP6_SENDMSG,
 	BPF_LIRC_MODE2,
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	BPF_FLOW_DISSECTOR = 17,
 	BPF_CGROUP_SYSCTL = 18,
 >>>>>>> 13dd69b476da (BACKPORT: bpf: Sysctl hook)
+=======
+    BPF_FLOW_DISSECTOR = 17,
+>>>>>>> 092bcdd27f36 (BACKPORT: flow_dissector: implements flow dissector BPF hook)
 	BPF_CGROUP_UDP4_RECVMSG = 19,
 	BPF_CGROUP_UDP6_RECVMSG = 20,
 	BPF_CGROUP_GETSOCKOPT = 21,
@@ -2619,9 +2627,13 @@ struct __sk_buff {
 	__u32 remote_port;	/* Stored in network byte order */
 	__u32 local_port;	/* stored in host byte order */
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	__bpf_md_ptr(struct bpf_flow_keys *, flow_keys);
 >>>>>>> e1d1782bd526 (bpf: fix pointer offsets in context for 32 bit)
+=======
+	struct bpf_flow_keys *flow_keys;
+>>>>>>> 092bcdd27f36 (BACKPORT: flow_dissector: implements flow dissector BPF hook)
 	/* ... here. */
 
 	__u32 data_meta;
@@ -3079,6 +3091,29 @@ struct bpf_cgroup_dev_ctx {
 
 struct bpf_raw_tracepoint_args {
 	__u64 args[0];
+};
+
+struct bpf_flow_keys {
+	__u16	nhoff;
+	__u16	thoff;
+	__u16	addr_proto;			/* ETH_P_* of valid addrs */
+	__u8	is_frag;
+	__u8	is_first_frag;
+	__u8	is_encap;
+	__u8	ip_proto;
+	__be16	n_proto;
+	__be16	sport;
+	__be16	dport;
+	union {
+		struct {
+			__be32	ipv4_src;
+			__be32	ipv4_dst;
+		};
+		struct {
+			__u32	ipv6_src[4];	/* in6_addr; network order */
+			__u32	ipv6_dst[4];	/* in6_addr; network order */
+		};
+	};
 };
 
 /* DIRECT:  Skip the FIB rules and go to FIB table associated with device

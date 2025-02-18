@@ -5527,7 +5527,10 @@ sk_skb_func_proto(enum bpf_func_id func_id, const struct bpf_prog *prog)
 
 static const struct bpf_func_proto *
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 092bcdd27f36 (BACKPORT: flow_dissector: implements flow dissector BPF hook)
 flow_dissector_func_proto(enum bpf_func_id func_id, const struct bpf_prog *prog)
 {
 	switch (func_id) {
@@ -5538,11 +5541,15 @@ flow_dissector_func_proto(enum bpf_func_id func_id, const struct bpf_prog *prog)
 	}
 }
 
+<<<<<<< HEAD
 const struct bpf_func_proto bpf_sock_map_update_proto __weak;
 const struct bpf_func_proto bpf_sock_hash_update_proto __weak;
 
 static const struct bpf_func_proto *
 >>>>>>> ce33a2d50837 (bpf, sockmap: convert to generic sk_msg interface)
+=======
+static const struct bpf_func_proto *
+>>>>>>> 092bcdd27f36 (BACKPORT: flow_dissector: implements flow dissector BPF hook)
 lwt_out_func_proto(enum bpf_func_id func_id, const struct bpf_prog *prog)
 {
 	switch (func_id) {
@@ -5670,6 +5677,7 @@ static bool bpf_skb_is_valid_access(int off, int size, enum bpf_access_type type
 		break;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> e1d1782bd526 (bpf: fix pointer offsets in context for 32 bit)
@@ -5683,6 +5691,12 @@ static bool bpf_skb_is_valid_access(int off, int size, enum bpf_access_type type
 		info->reg_type = PTR_TO_SOCK_COMMON_OR_NULL;
 		break;
 >>>>>>> e51e8ea81ed1 (SQUASH! bpf: Add a bpf_sock pointer to __sk_buff and a bpf_sk_fullsock helpe)
+=======
+	case bpf_ctx_range(struct __sk_buff, flow_keys):
+		if (size != sizeof(struct bpf_flow_keys *))
+			return false;
+		break;
+>>>>>>> 092bcdd27f36 (BACKPORT: flow_dissector: implements flow dissector BPF hook)
 	default:
 		/* Only narrow read access allowed for now. */
 		if (type == BPF_WRITE) {
@@ -5709,9 +5723,13 @@ static bool sk_filter_is_valid_access(int off, int size,
 	case bpf_ctx_range(struct __sk_buff, data_meta):
 	case bpf_ctx_range(struct __sk_buff, data_end):
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	case bpf_ctx_range_ptr(struct __sk_buff, flow_keys):
 >>>>>>> e1d1782bd526 (bpf: fix pointer offsets in context for 32 bit)
+=======
+	case bpf_ctx_range(struct __sk_buff, flow_keys):
+>>>>>>> 092bcdd27f36 (BACKPORT: flow_dissector: implements flow dissector BPF hook)
 	case bpf_ctx_range_till(struct __sk_buff, family, local_port):
 		return false;
 	}
@@ -5736,9 +5754,13 @@ static bool lwt_is_valid_access(int off, int size,
 	switch (off) {
 	case bpf_ctx_range(struct __sk_buff, tc_classid):
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	case bpf_ctx_range_ptr(struct __sk_buff, flow_keys):
 >>>>>>> e1d1782bd526 (bpf: fix pointer offsets in context for 32 bit)
+=======
+	case bpf_ctx_range(struct __sk_buff, flow_keys):
+>>>>>>> 092bcdd27f36 (BACKPORT: flow_dissector: implements flow dissector BPF hook)
 	case bpf_ctx_range_till(struct __sk_buff, family, local_port):
 	case bpf_ctx_range(struct __sk_buff, data_meta):
 		return false;
@@ -6195,6 +6217,7 @@ static bool sk_skb_is_valid_access(int off, int size,
 	}
 
 	switch (off) {
+	case bpf_ctx_range(struct __sk_buff, flow_keys):
 	case bpf_ctx_range(struct __sk_buff, mark):
 	case bpf_ctx_range_ptr(struct __sk_buff, flow_keys):
 	case bpf_ctx_range(struct __sk_buff, tc_classid):
@@ -6211,7 +6234,10 @@ static bool sk_skb_is_valid_access(int off, int size,
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 092bcdd27f36 (BACKPORT: flow_dissector: implements flow dissector BPF hook)
 static bool flow_dissector_is_valid_access(int off, int size,
 					   enum bpf_access_type type,
 					   const struct bpf_prog *prog,
@@ -6232,7 +6258,11 @@ static bool flow_dissector_is_valid_access(int off, int size,
 	case bpf_ctx_range(struct __sk_buff, data_end):
 		info->reg_type = PTR_TO_PACKET_END;
 		break;
+<<<<<<< HEAD
 	case bpf_ctx_range_ptr(struct __sk_buff, flow_keys):
+=======
+	case bpf_ctx_range(struct __sk_buff, flow_keys):
+>>>>>>> 092bcdd27f36 (BACKPORT: flow_dissector: implements flow dissector BPF hook)
 		info->reg_type = PTR_TO_FLOW_KEYS;
 		break;
 	case bpf_ctx_range(struct __sk_buff, tc_classid):
@@ -6242,7 +6272,10 @@ static bool flow_dissector_is_valid_access(int off, int size,
 	return bpf_skb_is_valid_access(off, size, type, prog, info);
 }
 
+<<<<<<< HEAD
 >>>>>>> e1d1782bd526 (bpf: fix pointer offsets in context for 32 bit)
+=======
+>>>>>>> 092bcdd27f36 (BACKPORT: flow_dissector: implements flow dissector BPF hook)
 static bool sk_msg_is_valid_access(int off, int size,
 				   enum bpf_access_type type,
 				   const struct bpf_prog *prog,
@@ -6570,7 +6603,10 @@ static u32 bpf_convert_ctx_access(enum bpf_access_type type,
 						     skc_num, 2, target_size));
 		break;
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 092bcdd27f36 (BACKPORT: flow_dissector: implements flow dissector BPF hook)
 	case offsetof(struct __sk_buff, flow_keys):
 		off  = si->off;
 		off -= offsetof(struct __sk_buff, flow_keys);
@@ -6579,12 +6615,15 @@ static u32 bpf_convert_ctx_access(enum bpf_access_type type,
 		*insn++ = BPF_LDX_MEM(BPF_SIZEOF(void *), si->dst_reg,
 				      si->src_reg, off);
 		break;
+<<<<<<< HEAD
 	case offsetof(struct __sk_buff, sk):
 		*insn++ = BPF_LDX_MEM(BPF_FIELD_SIZEOF(struct sk_buff, sk),
 				      si->dst_reg, si->src_reg,
 				      offsetof(struct sk_buff, sk));
 		break;
 >>>>>>> e51e8ea81ed1 (SQUASH! bpf: Add a bpf_sock pointer to __sk_buff and a bpf_sk_fullsock helpe)
+=======
+>>>>>>> 092bcdd27f36 (BACKPORT: flow_dissector: implements flow dissector BPF hook)
 	}
 
 	return insn - insn_buf;
@@ -7537,6 +7576,14 @@ const struct bpf_verifier_ops sk_skb_verifier_ops = {
 };
 
 const struct bpf_prog_ops sk_skb_prog_ops = {
+};
+
+const struct bpf_verifier_ops flow_dissector_verifier_ops = {
+	.get_func_proto		= flow_dissector_func_proto,
+	.is_valid_access	= flow_dissector_is_valid_access,
+	.convert_ctx_access	= bpf_convert_ctx_access,
+};
+const struct bpf_prog_ops flow_dissector_prog_ops = {
 };
 
 const struct bpf_verifier_ops sk_msg_verifier_ops = {
