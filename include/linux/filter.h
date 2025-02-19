@@ -1180,4 +1180,23 @@ struct bpf_sock_ops_kern {
 					 */
 };
 
+<<<<<<< HEAD
+=======
+struct bpf_sysctl_kern {
+	struct ctl_table_header *head;
+	struct ctl_table *table;
+	int write;
+};
+
+struct bpf_sockopt_kern {
+	struct sock	*sk;
+	u8		*optval;
+	u8		*optval_end;
+	s32		level;
+	s32		optname;
+	s32		optlen;
+	s32		retval;
+};
+
+>>>>>>> 205939c05648 (bpf: implement getsockopt and setsockopt hooks)
 #endif /* __LINUX_FILTER_H__ */

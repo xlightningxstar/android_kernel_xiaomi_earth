@@ -15,6 +15,7 @@
 #include <linux/bpf.h>
 #include <linux/bpf-cgroup.h>
 #include <net/sock.h>
+#include <net/bpf_sk_storage.h>
 
 DEFINE_STATIC_KEY_FALSE(cgroup_bpf_enabled_key);
 EXPORT_SYMBOL(cgroup_bpf_enabled_key);
@@ -774,6 +775,7 @@ static bool __cgroup_bpf_prog_array_is_empty(struct cgroup *cgrp,
 }
 static int sockopt_alloc_buf(struct bpf_sockopt_kern *ctx, int max_optlen)
 {
+<<<<<<< HEAD
 	if (unlikely(max_optlen < 0))
 		return -EINVAL;
 
@@ -784,15 +786,24 @@ static int sockopt_alloc_buf(struct bpf_sockopt_kern *ctx, int max_optlen)
 		max_optlen = PAGE_SIZE;
 	}
 
+=======
+	if (unlikely(max_optlen > PAGE_SIZE) || max_optlen < 0)
+		return -EINVAL;
+>>>>>>> 205939c05648 (bpf: implement getsockopt and setsockopt hooks)
 	ctx->optval = kzalloc(max_optlen, GFP_USER);
 	if (!ctx->optval)
 		return -ENOMEM;
 	ctx->optval_end = ctx->optval + max_optlen;
 <<<<<<< HEAD
+<<<<<<< HEAD
 	return max_optlen;
 =======
 	return 0;
 >>>>>>> f72b1b2e2c6a (bpf: always allocate at least 16 bytes for setsockopt hook)
+=======
+	ctx->optlen = max_optlen;
+	return 0;
+>>>>>>> 205939c05648 (bpf: implement getsockopt and setsockopt hooks)
 }
 static void sockopt_free_buf(struct bpf_sockopt_kern *ctx)
 {
@@ -808,8 +819,12 @@ int __cgroup_bpf_run_filter_setsockopt(struct sock *sk, int *level,
 		.level = *level,
 		.optname = *optname,
 	};
+<<<<<<< HEAD
 	int ret, max_optlen;
 
+=======
+	int ret;
+>>>>>>> 205939c05648 (bpf: implement getsockopt and setsockopt hooks)
 	/* Opportunistic check to see whether we have any BPF program
 	 * attached to the hook so we don't waste time allocating
 	 * memory and locking the socket.
@@ -817,6 +832,7 @@ int __cgroup_bpf_run_filter_setsockopt(struct sock *sk, int *level,
 	if (!cgroup_bpf_enabled ||
 	    __cgroup_bpf_prog_array_is_empty(cgrp, BPF_CGROUP_SETSOCKOPT))
 		return 0;
+<<<<<<< HEAD
 
 	/* Allocate a bit more than the initial user buffer for
 	 * BPF program. The canonical use case is overriding
@@ -842,6 +858,12 @@ int __cgroup_bpf_run_filter_setsockopt(struct sock *sk, int *level,
 
 	if (copy_from_user(ctx.optval, optval, *optlen) != 0) {
 >>>>>>> f72b1b2e2c6a (bpf: always allocate at least 16 bytes for setsockopt hook)
+=======
+	ret = sockopt_alloc_buf(&ctx, *optlen);
+	if (ret)
+		return ret;
+	if (copy_from_user(ctx.optval, optval, *optlen) != 0) {
+>>>>>>> 205939c05648 (bpf: implement getsockopt and setsockopt hooks)
 		ret = -EFAULT;
 		goto out;
 	}
@@ -856,7 +878,11 @@ int __cgroup_bpf_run_filter_setsockopt(struct sock *sk, int *level,
 	if (ctx.optlen == -1) {
 		/* optlen set to -1, bypass kernel */
 		ret = 1;
+<<<<<<< HEAD
 	} else if (ctx.optlen > max_optlen || ctx.optlen < -1) {
+=======
+	} else if (ctx.optlen > *optlen || ctx.optlen < -1) {
+>>>>>>> 205939c05648 (bpf: implement getsockopt and setsockopt hooks)
 		/* optlen is out of bounds */
 		ret = -EFAULT;
 	} else {
@@ -865,6 +891,7 @@ int __cgroup_bpf_run_filter_setsockopt(struct sock *sk, int *level,
 		/* export any potential modifications */
 		*level = ctx.level;
 		*optname = ctx.optname;
+<<<<<<< HEAD
 
 		/* optlen == 0 from BPF indicates that we should
 		 * use original userspace data.
@@ -873,6 +900,10 @@ int __cgroup_bpf_run_filter_setsockopt(struct sock *sk, int *level,
 			*optlen = ctx.optlen;
 			*kernel_optval = ctx.optval;
 		}
+=======
+		*optlen = ctx.optlen;
+		*kernel_optval = ctx.optval;
+>>>>>>> 205939c05648 (bpf: implement getsockopt and setsockopt hooks)
 	}
 out:
 	if (ret)
@@ -901,6 +932,7 @@ int __cgroup_bpf_run_filter_getsockopt(struct sock *sk, int level,
 	    __cgroup_bpf_prog_array_is_empty(cgrp, BPF_CGROUP_GETSOCKOPT))
 		return retval;
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 	ctx.optlen = max_optlen;
 
@@ -916,6 +948,11 @@ int __cgroup_bpf_run_filter_getsockopt(struct sock *sk, int level,
 	ctx.optlen = max_optlen;
 
 >>>>>>> f72b1b2e2c6a (bpf: always allocate at least 16 bytes for setsockopt hook)
+=======
+	ret = sockopt_alloc_buf(&ctx, max_optlen);
+	if (ret)
+		return ret;
+>>>>>>> 205939c05648 (bpf: implement getsockopt and setsockopt hooks)
 	if (!retval) {
 		/* If kernel getsockopt finished successfully,
 		 * copy whatever was returned to the user back
@@ -927,9 +964,15 @@ int __cgroup_bpf_run_filter_getsockopt(struct sock *sk, int level,
 			ret = -EFAULT;
 			goto out;
 		}
+<<<<<<< HEAD
 
 		if (copy_from_user(ctx.optval, optval,
 				   min(ctx.optlen, max_optlen)) != 0) {
+=======
+		if (ctx.optlen > max_optlen)
+			ctx.optlen = max_optlen;
+		if (copy_from_user(ctx.optval, optval, ctx.optlen) != 0) {
+>>>>>>> 205939c05648 (bpf: implement getsockopt and setsockopt hooks)
 			ret = -EFAULT;
 			goto out;
 		}
@@ -953,6 +996,7 @@ int __cgroup_bpf_run_filter_getsockopt(struct sock *sk, int level,
 		ret = -EFAULT;
 		goto out;
 	}
+<<<<<<< HEAD
 
 	if (ctx.optlen != 0) {
 		if (copy_to_user(optval, ctx.optval, ctx.optlen) ||
@@ -960,6 +1004,12 @@ int __cgroup_bpf_run_filter_getsockopt(struct sock *sk, int level,
 			ret = -EFAULT;
 			goto out;
 		}
+=======
+	if (copy_to_user(optval, ctx.optval, ctx.optlen) ||
+	    put_user(ctx.optlen, optlen)) {
+		ret = -EFAULT;
+		goto out;
+>>>>>>> 205939c05648 (bpf: implement getsockopt and setsockopt hooks)
 	}
 	ret = ctx.retval;
 out:
@@ -1160,4 +1210,7 @@ const struct bpf_verifier_ops cg_sockopt_verifier_ops = {
 };
 const struct bpf_prog_ops cg_sockopt_prog_ops = {
 };
+<<<<<<< HEAD
 >>>>>>> e44eaf4881cb (bpf: Don't return EINVAL from {get,set}sockopt when optlen > PAGE_SIZE)
+=======
+>>>>>>> 205939c05648 (bpf: implement getsockopt and setsockopt hooks)
