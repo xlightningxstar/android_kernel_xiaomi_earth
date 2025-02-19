@@ -376,6 +376,16 @@ union bpf_attr {
 		 * (context accesses, allowed helpers, etc).
 		 */
 		__u32		expected_attach_type;
+<<<<<<< HEAD
+=======
+		__u32		prog_btf_fd;	/* fd pointing to BTF type data */
+		__u32		func_info_rec_size;	/* userspace bpf_func_info size */
+		__aligned_u64	func_info;	/* func info */
+		__u32		func_info_cnt;	/* number of bpf_func_info records */
+		__u32		line_info_rec_size;	/* userspace bpf_line_info size */
+		__aligned_u64	line_info;	/* line info */
+		__u32		line_info_cnt;	/* number of bpf_line_info records */
+>>>>>>> ba4944e74883 (bpf: Add bpf_line_info support)
 	};
 
 	struct { /* anonymous struct used by BPF_OBJ_* commands */
@@ -2815,6 +2825,19 @@ struct bpf_prog_info {
 	__u32 nr_jited_func_lens;
 	__aligned_u64 jited_ksyms;
 	__aligned_u64 jited_func_lens;
+<<<<<<< HEAD
+=======
+	__u32 btf_id;
+	__u32 func_info_rec_size;
+	__aligned_u64 func_info;
+	__u32 func_info_cnt;
+	__u32 line_info_cnt;
+	__aligned_u64 line_info;
+	__aligned_u64 jited_line_info;
+	__u32 jited_line_info_cnt;
+	__u32 line_info_rec_size;
+	__u32 jited_line_info_rec_size;
+>>>>>>> ba4944e74883 (bpf: Add bpf_line_info support)
 } __attribute__((aligned(8)));
 
 struct bpf_map_info {
@@ -3125,6 +3148,7 @@ struct bpf_line_info {
 	__u32	line_col;
 };
 
+<<<<<<< HEAD
 struct bpf_spin_lock {
 	__u32	val;
 };
@@ -3143,4 +3167,6 @@ struct bpf_sockopt {
 >>>>>>> 205939c05648 (bpf: implement getsockopt and setsockopt hooks)
 =======
 >>>>>>> d1efffd3c35e (bpf: introduce bpf_spin_lock)
+=======
+>>>>>>> ba4944e74883 (bpf: Add bpf_line_info support)
 #endif /* _UAPI__LINUX_BPF_H__ */
