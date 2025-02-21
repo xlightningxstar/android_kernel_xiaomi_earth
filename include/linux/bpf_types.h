@@ -69,10 +69,14 @@ BPF_MAP_TYPE(BPF_MAP_TYPE_HASH_OF_MAPS, htab_of_maps_map_ops)
 #ifdef CONFIG_NET
 BPF_MAP_TYPE(BPF_MAP_TYPE_DEVMAP, dev_map_ops)
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 BPF_MAP_TYPE(BPF_MAP_TYPE_SK_STORAGE, sk_storage_map_ops)
 BPF_MAP_TYPE(BPF_MAP_TYPE_DEVMAP_HASH, dev_map_hash_ops)
 >>>>>>> 5c7addaafc8a (bpf: Introduce bpf sk local storage)
+=======
+BPF_MAP_TYPE(BPF_MAP_TYPE_DEVMAP_HASH, dev_map_hash_ops)
+>>>>>>> 71f6e2079e21 (BACKPORT: xdp: Add devmap_hash map type for looking up devices by hashed index)
 #if defined(CONFIG_STREAM_PARSER) && defined(CONFIG_INET)
 BPF_MAP_TYPE(BPF_MAP_TYPE_SOCKMAP, sock_map_ops)
 BPF_MAP_TYPE(BPF_MAP_TYPE_SOCKHASH, sock_hash_ops)

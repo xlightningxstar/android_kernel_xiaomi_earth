@@ -2877,6 +2877,10 @@ static int check_map_func_compatibility(struct bpf_verifier_env *env,
 	 */
 	case BPF_MAP_TYPE_DEVMAP:
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+	case BPF_MAP_TYPE_DEVMAP_HASH:
+>>>>>>> 71f6e2079e21 (BACKPORT: xdp: Add devmap_hash map type for looking up devices by hashed index)
 		if (func_id != BPF_FUNC_redirect_map)
 =======
 	case BPF_MAP_TYPE_DEVMAP_HASH:
@@ -2952,6 +2956,7 @@ static int check_map_func_compatibility(struct bpf_verifier_env *env,
 		break;
 	case BPF_FUNC_redirect_map:
 		if (map->map_type != BPF_MAP_TYPE_DEVMAP &&
+		    map->map_type != BPF_MAP_TYPE_DEVMAP_HASH &&
 		    map->map_type != BPF_MAP_TYPE_CPUMAP &&
 		    map->map_type != BPF_MAP_TYPE_XSKMAP)
 			goto error;
